@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc322ec4aff641c44b43f80398c6483c, type: 3}
+  m_Name: SpawnCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::RageRoom.SpawnCatalog
+  entries:
+  - displayName: Bottle
+    icon: {fileID: 0}
+    variants:
+    - {fileID: 4289737717904178469, guid: 757f40c26cc541048b88a115f2acf220, type: 3}
+    mass: 1
+    maxPerOrder: 25
+  - displayName: Brick
+    icon: {fileID: 0}
+    variants:
+    - {fileID: 2602792809068796067, guid: 0cb0428354e0f5d47bbec18a90d52397, type: 3}
+    mass: 4
+    maxPerOrder: 20
+  - displayName: TV
+    icon: {fileID: 0}
+    variants:
+    - {fileID: 2845610228662565674, guid: 7a960386bda10e34d84db4a69acf60e9, type: 3}
+    mass: 8
+    maxPerOrder: 5
+  - displayName: Printer
+    icon: {fileID: 0}
+    variants:
+    - {fileID: 3314669382264066720, guid: 36cfa1443f685e74790cc2c35d8fe618, type: 3}
+    mass: 6
+    maxPerOrder: 5
+  - displayName: Plate
+    icon: {fileID: 0}
+    variants:
+    - {fileID: 1910822629051859512, guid: c1d612c8a48841545bc962e2864dda20, type: 3}
+    mass: 1
+    maxPerOrder: 15
+  - displayName: Cup
+    icon: {fileID: 0}
+    variants:
+    - {fileID: 515868768954049555, guid: 0ed25257761457b47bebb69958a9a21c, type: 3}
+    mass: 1
+    maxPerOrder: 15

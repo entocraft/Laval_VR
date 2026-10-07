@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: b7144710939fdd6419f20591bf4759b1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - catalog: {fileID: 11400000, guid: 7a629990cb93aa240870f4cf3949201d, type: 2}
+  - spawner: {instanceID: 0}
+  - rowTemplate: {instanceID: 0}
+  - totalText: {instanceID: 0}
+  - feedbackText: {instanceID: 0}
+  - resetButton: {instanceID: 0}
+  - clearButton: {instanceID: 0}
+  - validateButton: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
