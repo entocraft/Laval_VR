@@ -935,7 +935,7 @@ public class RuntimeFracture : MonoBehaviour
 
         var src = go.AddComponent<AudioSource>();
         src.clip = clip;
-        src.volume = Mathf.Clamp01(volume);
+        src.volume = Mathf.Clamp01(volume) * RageRoom.GameSettings.FxVolume; // réglage « Volume des effets » du menu
         src.pitch = 1f + Random.Range(-pitchRange, pitchRange);
         src.spatialBlend = 1f;   // son entièrement spatialisé
         src.minDistance = 0.5f;
