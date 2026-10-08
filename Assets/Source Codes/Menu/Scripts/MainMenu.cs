@@ -1,61 +1,69 @@
-using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace RageRoom
 {
     /// <summary>
-    /// Menu principal : Jouer (charge la scène du jeu), Paramètres (volumes, manettes / mains), Quitter.
-    /// Les références sont remplies par le menu « Rage Room > Menu > Recréer la scène du menu ».
+    /// Menu principal (MainMenu.uxml) : Jouer (charge la scène du jeu), Paramètres (volumes, manettes / mains), Quitter.
+    /// À placer sur le même objet que le UI Document du menu ; la scène est créée par
+    /// « Rage Room > Menu > Recréer la scène du menu ».
     /// </summary>
+    [RequireComponent(typeof(UIDocument))]
     public class MainMenu : MonoBehaviour
     {
         [Tooltip("Nom de la scène du jeu (doit être dans les Build Settings).")]
         [SerializeField] string gameScene = "SampleScene";
 
-        [Header("Panneaux")]
-        [SerializeField] GameObject mainPanel;
-        [SerializeField] GameObject settingsPanel;
-
-        [Header("Menu principal")]
-        [SerializeField] Button playButton;
-        [SerializeField] Button settingsButton;
-        [SerializeField] Button quitButton;
-
-        [Header("Paramètres")]
-        [SerializeField] Slider masterSlider;
-        [SerializeField] TMP_Text masterValue;
-        [SerializeField] Slider fxSlider;
-        [SerializeField] TMP_Text fxValue;
-        [SerializeField] Button controllersButton;
-        [SerializeField] Button handsButton;
-        [SerializeField] Button backButton;
-
-        [Header("Couleurs du choix manettes / mains")]
-        [SerializeField] Color selectedColor = new Color(0.86f, 0.16f, 0.16f);
-        [SerializeField] Color unselectedColor = new Color(0.25f, 0.25f, 0.28f);
-
+        VisualElement mainPanel, settingsPanel;
+        Button playButton, settingsButton, quitButton;
         bool loading;
 
-        void Awake()
+        // Le UI Document reconstruit ses éléments à chaque activation : on rebranche tout ici.
+        // Il s'active avant ce script, son arbre visuel est donc déjà prêt.
+        void OnEnable()
         {
-            playButton.onClick.AddListener(Play);
-            settingsButton.onClick.AddListener(OpenSettings);
-            quitButton.onClick.AddListener(Quit);
-            backButton.onClick.AddListener(CloseSettings);
+            var document = GetComponent<UIDocument>();
+            if (document == null)
+            {
+                Debug.LogError("[Rage Room] Le menu principal n'a pas de UI Document : la scène date de l'ancien menu (canvas). "
+                             + "Relance « Rage Room > Menu > Recréer la scène du menu ».", this);
+                return;
+            }
 
-            masterSlider.SetValueWithoutNotify(GameSettings.MasterVolume);
-            fxSlider.SetValueWithoutNotify(GameSettings.FxVolume);
-            masterSlider.onValueChanged.AddListener(v => { GameSettings.MasterVolume = v; RefreshLabels(); });
-            fxSlider.onValueChanged.AddListener(v => { GameSettings.FxVolume = v; RefreshLabels(); });
+            // Filet de sécurité si le UI Document de la scène a perdu ses références
+            var skin = MenuUi.Skin;
+            if (skin != null)
+            {
+                if (document.panelSettings == null && skin.panelSettings != null) document.panelSettings = skin.panelSettings;
+                if (document.visualTreeAsset == null && skin.mainMenu != null) document.visualTreeAsset = skin.mainMenu;
+            }
 
-            controllersButton.onClick.AddListener(() => SetVisual(ControllerVisualMode.Manettes));
-            handsButton.onClick.AddListener(() => SetVisual(ControllerVisualMode.Mains));
+            var root = document.rootVisualElement;
+            if (root == null || document.panelSettings == null || document.visualTreeAsset == null)
+            {
+                Debug.LogError("[Rage Room] Le UI Document du menu principal n'a pas son Panel Settings ou son UXML (MainMenu.uxml). "
+                             + "Lance « Rage Room > Menu > Relier les UXML des menus ».", this);
+                return;
+            }
 
-            RefreshLabels();
-            RefreshVisualChoice();
-            CloseSettings();
+            MenuUi.EnsureInteraction();
+
+            mainPanel = MenuUi.Find<VisualElement>(root, "main-panel");
+            settingsPanel = MenuUi.Find<VisualElement>(root, "settings-panel");
+            playButton = MenuUi.Find<Button>(root, "play-button");
+            settingsButton = MenuUi.Find<Button>(root, "settings-button");
+            quitButton = MenuUi.Find<Button>(root, "quit-button");
+
+            MenuUi.OnClick(playButton, Play);
+            MenuUi.OnClick(settingsButton, OpenSettings);
+            MenuUi.OnClick(quitButton, Quit);
+            MenuUi.OnClick(MenuUi.Find<Button>(root, "back-button"), CloseSettings);
+
+            // Volumes, manettes / mains : branchés et remis aux valeurs enregistrées
+            new MenuUi.SettingsBlock(root);
+
+            loading = false;
+            ShowSettings(false);
         }
 
         void Play()
@@ -65,23 +73,24 @@ namespace RageRoom
             GameSettings.Save();
 
             // Chargement en arrière-plan : le casque continue d'afficher le menu au lieu de figer l'image
-            var label = playButton.GetComponentInChildren<TMP_Text>();
-            if (label != null) label.text = "CHARGEMENT...";
-            playButton.interactable = settingsButton.interactable = quitButton.interactable = false;
+            if (playButton != null) playButton.text = "CHARGEMENT...";
+            foreach (var button in new[] { playButton, settingsButton, quitButton })
+                if (button != null) button.SetEnabled(false);
             SceneSetupRunner.LoadScene(gameScene);
         }
 
-        void OpenSettings()
-        {
-            mainPanel.SetActive(false);
-            settingsPanel.SetActive(true);
-        }
+        void OpenSettings() => ShowSettings(true);
 
         void CloseSettings()
         {
             GameSettings.Save();
-            settingsPanel.SetActive(false);
-            mainPanel.SetActive(true);
+            ShowSettings(false);
+        }
+
+        void ShowSettings(bool settings)
+        {
+            MenuUi.Show(mainPanel, !settings);
+            MenuUi.Show(settingsPanel, settings);
         }
 
         void Quit()
@@ -92,35 +101,6 @@ namespace RageRoom
 #else
             Application.Quit();
 #endif
-        }
-
-        void SetVisual(ControllerVisualMode mode)
-        {
-            GameSettings.ControllerVisual = mode;
-            RefreshVisualChoice();
-        }
-
-        void RefreshLabels()
-        {
-            masterValue.text = Mathf.RoundToInt(masterSlider.value * 100f) + " %";
-            fxValue.text = Mathf.RoundToInt(fxSlider.value * 100f) + " %";
-        }
-
-        void RefreshVisualChoice()
-        {
-            bool hands = GameSettings.ControllerVisual == ControllerVisualMode.Mains;
-            Tint(controllersButton, hands ? unselectedColor : selectedColor);
-            Tint(handsButton, hands ? selectedColor : unselectedColor);
-        }
-
-        static void Tint(Button b, Color c)
-        {
-            var colors = b.colors;
-            colors.normalColor = c;
-            colors.selectedColor = c;
-            colors.highlightedColor = Color.Lerp(c, Color.white, 0.25f);
-            colors.pressedColor = Color.Lerp(c, Color.black, 0.3f);
-            b.colors = colors;
         }
     }
 }

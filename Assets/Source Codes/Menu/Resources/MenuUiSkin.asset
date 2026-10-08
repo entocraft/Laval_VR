@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f2672f63ef56fc4aabe51c9e28aae39, type: 3}
   m_Name: MenuUiSkin
   m_EditorClassIdentifier: Assembly-CSharp::RageRoom.MenuUiSkin
-  standard: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  background: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  knob: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  panelSettings: {fileID: 11400000, guid: e990319bee4db3341ac626566cd1fe3a, type: 2}
+  mainMenu: {fileID: 9197481963319205126, guid: 198008bd00a43784db411f4591557b06, type: 3}
+  inGameMenu: {fileID: 9197481963319205126, guid: 5192d3e15f1051b48b88b151b4aedc10, type: 3}

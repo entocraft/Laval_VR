@@ -1,0 +1,52 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <!-- Bloc de réglages partagé par MainMenu.uxml et InGameMenu.uxml.
+         Le style vient de Menu.uss, chargé par ces deux fichiers. -->
+    <ui:VisualElement name="settings" class="settings">
+
+        <!-- En-tête : bandeau jaune + barres obliques + bande de chantier (décor) -->
+        <ui:VisualElement class="panel__header">
+            <ui:Label text="PARAMÈTRES" class="panel__title" />
+            <ui:VisualElement class="title-slashes" picking-mode="Ignore" />
+        </ui:VisualElement>
+        <ui:VisualElement class="hazard-band" picking-mode="Ignore" />
+
+        <!-- Volume général -->
+        <ui:VisualElement name="master-setting" class="setting">
+            <ui:VisualElement class="setting__header">
+                <ui:Label text="VOLUME GÉNÉRAL" class="setting__label" />
+                <ui:Label name="master-value" text="100 %" class="setting__value" />
+            </ui:VisualElement>
+            <ui:Slider name="master-slider" low-value="0" high-value="1" value="1" fill="true" class="setting__slider" />
+        </ui:VisualElement>
+
+        <!-- Volume des effets -->
+        <ui:VisualElement name="fx-setting" class="setting">
+            <ui:VisualElement class="setting__header">
+                <ui:Label text="VOLUME DES EFFETS" class="setting__label" />
+                <ui:Label name="fx-value" text="100 %" class="setting__value" />
+            </ui:VisualElement>
+            <ui:Slider name="fx-slider" low-value="0" high-value="1" value="1" fill="true" class="setting__slider" />
+        </ui:VisualElement>
+
+        <!-- Manettes / Mains -->
+        <ui:VisualElement name="visual-setting" class="setting">
+            <ui:VisualElement class="setting__header">
+                <ui:Label text="DANS LES MAINS" class="setting__label" />
+            </ui:VisualElement>
+            <ui:VisualElement name="visual-choice" class="choice">
+                <ui:Button name="controllers-button" text="MANETTES" class="choice__button choice__button--selected" />
+                <ui:Button name="hands-button" text="MAINS" class="choice__button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Vitesse de rotation (masquée dans le menu principal par Menu.uss) -->
+        <ui:VisualElement name="turn-speed-setting" class="setting setting--turn-speed">
+            <ui:VisualElement class="setting__header">
+                <ui:Label text="VITESSE DE ROTATION" class="setting__label" />
+                <ui:Label name="turn-speed-value" text="45 °/s" class="setting__value" />
+            </ui:VisualElement>
+            <ui:SliderInt name="turn-speed-slider" low-value="15" high-value="120" value="45" fill="true" class="setting__slider" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

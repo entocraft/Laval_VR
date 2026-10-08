@@ -1,14 +1,17 @@
 using System.Collections.Generic;
 using System.IO;
-using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit.UI;
+// UnityEngine.UI et UnityEngine.UIElements ont des types de même nom (Image, Button…) : on ne prend que ceux utiles.
+using PanelInputConfiguration = UnityEngine.UIElements.PanelInputConfiguration;
+using PanelSettings = UnityEngine.UIElements.PanelSettings;
+using UIDocument = UnityEngine.UIElements.UIDocument;
+using VisualTreeAsset = UnityEngine.UIElements.VisualTreeAsset;
 
 namespace RageRoom.EditorTools
 {
@@ -16,6 +19,8 @@ namespace RageRoom.EditorTools
     /// Crée la scène du menu principal (SC_Menu) et la place en premier dans les Build Settings.
     /// Se lance tout seul une fois si la scène n'existe pas encore ; sinon via
     /// « Rage Room > Menu > Recréer la scène du menu ». Ne modifie jamais la scène ouverte.
+    /// Prépare aussi ce dont les menus en UI Toolkit ont besoin : leur Panel Settings et l'asset
+    /// « MenuUiSkin » qui pointe vers MainMenu.uxml et InGameMenu.uxml.
     /// </summary>
     [InitializeOnLoad]
     static class MenuSceneBuilder
@@ -38,12 +43,14 @@ namespace RageRoom.EditorTools
         }
         const string BackgroundPath = Folder + "/Textures/MenuBackground.png";
         const string ConfigPath = Folder + "/Resources/ControllerHandsConfig.asset";
+        const string SkinPath = Folder + "/Resources/MenuUiSkin.asset";
+        const string PanelSettingsPath = Folder + "/MenuPanelSettings.asset";
         const string RigPath = "Assets/Samples/XR Interaction Toolkit/3.5.1/Hands Interaction Demo/Prefabs/XR Origin Hands (XR Rig).prefab";
         const string HandModels = "Assets/Samples/XR Hands/1.8.1/HandVisualizer/";
 
-        static readonly Color PanelColor = new Color(0.05f, 0.05f, 0.06f, 0.85f);
-        static readonly Color Red = new Color(0.86f, 0.16f, 0.16f);
-        static readonly Color Grey = new Color(0.25f, 0.25f, 0.28f);
+        // Panneau du menu principal : mêmes dimensions que l'ancien canvas (560 x 620 pixels à 1,2 mm le pixel)
+        static readonly Vector2 MenuSize = new Vector2(560f, 620f);
+        const float MenuScale = 1.2f;
 
         static MenuSceneBuilder()
         {
@@ -68,22 +75,125 @@ namespace RageRoom.EditorTools
             Build();
         }
 
-        static void EnsureUiSkin()
+        [MenuItem("Rage Room/Menu/Relier les UXML des menus")]
+        static void LinkUiAssets()
         {
-            const string skinPath = Folder + "/Resources/MenuUiSkin.asset";
-            if (AssetDatabase.LoadAssetAtPath<MenuUiSkin>(skinPath) != null) return;
-            var skin = ScriptableObject.CreateInstance<MenuUiSkin>();
-            skin.standard = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
-            skin.background = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
-            skin.knob = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
-            AssetDatabase.CreateAsset(skin, skinPath);
+            if (EnsureUiSkin(true) != null)
+                Debug.Log($"[Rage Room] Menus reliés : {SkinPath} pointe vers MainMenu.uxml, InGameMenu.uxml et {PanelSettingsPath}.");
+        }
+
+        // ---------- Assets des menus en UI Toolkit ----------
+
+        /// <summary>
+        /// Crée ou complète l'asset « MenuUiSkin » (Panel Settings + les deux UXML, cherchés par leur nom dans le projet).
+        /// Renvoie null s'il manque quelque chose ; <paramref name="log"/> décide si on l'écrit dans la console.
+        /// </summary>
+        static MenuUiSkin EnsureUiSkin(bool log)
+        {
+            var skin = AssetDatabase.LoadAssetAtPath<MenuUiSkin>(SkinPath);
+            if (skin == null)
+            {
+                skin = ScriptableObject.CreateInstance<MenuUiSkin>();
+                AssetDatabase.CreateAsset(skin, SkinPath);
+            }
+
+            var panelSettings = skin.panelSettings != null ? skin.panelSettings : EnsurePanelSettings(log);
+            var mainMenu = skin.mainMenu != null ? skin.mainMenu : FindUxml("MainMenu", log);
+            var inGameMenu = skin.inGameMenu != null ? skin.inGameMenu : FindUxml("InGameMenu", log);
+
+            if (panelSettings != skin.panelSettings || mainMenu != skin.mainMenu || inGameMenu != skin.inGameMenu)
+            {
+                skin.panelSettings = panelSettings;
+                skin.mainMenu = mainMenu;
+                skin.inGameMenu = inGameMenu;
+                EditorUtility.SetDirty(skin);
+                AssetDatabase.SaveAssets();
+            }
+
+            return panelSettings != null && mainMenu != null && inGameMenu != null ? skin : null;
+        }
+
+        static VisualTreeAsset FindUxml(string fileName, bool log)
+        {
+            foreach (var guid in AssetDatabase.FindAssets(fileName + " t:VisualTreeAsset"))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                if (Path.GetFileNameWithoutExtension(path) == fileName)
+                    return AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
+            }
+            if (log)
+                Debug.LogError($"[Rage Room] {fileName}.uxml introuvable dans le projet. Importe MainMenu.uxml, InGameMenu.uxml, Settings.uxml et Menu.uss "
+                             + "dans un même dossier, puis relance « Rage Room > Menu > Relier les UXML des menus ».");
+            return null;
+        }
+
+        /// <summary>
+        /// Panel Settings réservé aux menus : affichage dans le monde, 1 pixel = 1 mm, et un collider créé
+        /// automatiquement à la taille du panneau pour que les rayons des manettes le touchent.
+        /// Il part d'une copie d'un Panel Settings du projet (celui du shop de préférence) pour garder son thème.
+        /// </summary>
+        static PanelSettings EnsurePanelSettings(bool log)
+        {
+            var settings = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
+            if (settings == null)
+            {
+                string source = null;
+                foreach (var guid in AssetDatabase.FindAssets("t:PanelSettings"))
+                {
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    var candidate = path.StartsWith("Assets/") ? AssetDatabase.LoadAssetAtPath<PanelSettings>(path) : null;
+                    if (candidate == null || candidate.themeStyleSheet == null) continue;
+
+                    var renderMode = new SerializedObject(candidate).FindProperty("m_RenderMode");
+                    bool worldSpace = renderMode != null && renderMode.intValue == 1;
+                    if (source == null || worldSpace) source = path;
+                    if (worldSpace) break;
+                }
+
+                if (source == null)
+                {
+                    if (log)
+                        Debug.LogError("[Rage Room] Aucun Panel Settings avec un thème dans le projet, impossible de créer celui des menus. "
+                                     + "Crée-en un (Assets > Create > UI Toolkit > Panel Settings Asset), puis relance « Rage Room > Menu > Relier les UXML des menus ».");
+                    return null;
+                }
+
+                if (!AssetDatabase.CopyAsset(source, PanelSettingsPath))
+                {
+                    if (log) Debug.LogError($"[Rage Room] Copie de {source} vers {PanelSettingsPath} impossible.");
+                    return null;
+                }
+                settings = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
+                if (settings == null) return null;
+                Debug.Log($"[Rage Room] Panel Settings des menus créé : {PanelSettingsPath} (copie de {source}).");
+            }
+
+            // Ces réglages n'ont pas tous d'accès public selon la version de Unity : on écrit les champs sérialisés.
+            var so = new SerializedObject(settings);
+            bool ok = true;
+            ok &= Set(so, "m_RenderMode", p => p.intValue = 1);                       // World Space
+            ok &= Set(so, "m_PixelsPerUnit", p => p.floatValue = MenuUi.PixelsPerUnit);
+            ok &= Set(so, "m_ColliderUpdateMode", p => p.intValue = 2);               // Match 2-D document rect
+            ok &= Set(so, "m_ColliderIsTrigger", p => p.boolValue = true);            // les objets lancés traversent le menu
+            so.ApplyModifiedPropertiesWithoutUndo();
+            if (!ok)
+                Debug.LogWarning($"[Rage Room] Réglages à vérifier à la main sur {PanelSettingsPath} : Render Mode « World Space », "
+                               + $"Pixels Per Unit {MenuUi.PixelsPerUnit:0}, Collider Update Mode « Match 2-D document rect », Collider Is Trigger coché.", settings);
             AssetDatabase.SaveAssets();
-            Debug.Log($"[Rage Room] Skin des menus en jeu créé : {skinPath}");
+            return settings;
+        }
+
+        static bool Set(SerializedObject so, string propertyName, System.Action<SerializedProperty> assign)
+        {
+            var property = so.FindProperty(propertyName);
+            if (property == null) return false;
+            assign(property);
+            return true;
         }
 
         static void EnsureHandsConfig()
         {
-            EnsureUiSkin();
+            EnsureUiSkin(false);
             if (AssetDatabase.LoadAssetAtPath<ControllerHandsConfig>(ConfigPath) != null) return;
             var config = ScriptableObject.CreateInstance<ControllerHandsConfig>();
             config.leftHandModel = AssetDatabase.LoadAssetAtPath<GameObject>(HandModels + "Models/LeftHand.fbx");
@@ -94,11 +204,20 @@ namespace RageRoom.EditorTools
             Debug.Log($"[Rage Room] Config des mains virtuelles créée : {ConfigPath}");
         }
 
+        // ---------- Scène du menu ----------
+
         static void Build()
         {
             if (SceneManager.GetSceneByPath(ScenePath).isLoaded)
             {
                 Debug.LogError("[Rage Room] Ferme SC_Menu avant de la recréer.");
+                return;
+            }
+
+            var skin = EnsureUiSkin(true);
+            if (skin == null)
+            {
+                Debug.LogError("[Rage Room] Scène du menu non créée : il manque les fichiers des menus (voir les messages ci-dessus).");
                 return;
             }
 
@@ -131,13 +250,19 @@ namespace RageRoom.EditorTools
                     cam.backgroundColor = new Color(0.02f, 0.02f, 0.025f);
                 }
 
-                // UI VR
+                // Entrées VR. Le menu est en UI Toolkit, le fond en canvas : avec les deux systèmes dans la scène,
+                // XR Interaction Toolkit demande « Bypass UI Toolkit Events » décoché.
                 var es = new GameObject("EventSystem");
                 es.AddComponent<EventSystem>();
-                es.AddComponent<XRUIInputModule>();
+                es.AddComponent<XRUIInputModule>().bypassUIToolkitEvents = false;
 
-                // Fond 2D : la capture d'écran du jeu sur un grand panneau
-                var bgCanvas = MakeCanvas("Fond (capture du jeu)", new Vector3(0f, 1.6f, 3.2f), 0.0025f, new Vector2(1920f, 1920f * 438f / 782f), cam, false);
+                // Ce qui permet aux rayons des manettes d'agir sur UI Toolkit
+                new GameObject("XR UI Toolkit Manager").AddComponent<XRUIToolkitManager>();
+                new GameObject("Panel Input Configuration").AddComponent<PanelInputConfiguration>()
+                    .panelInputRedirection = PanelInputConfiguration.PanelInputRedirection.Never; // « No input redirection »
+
+                // Fond 2D : la capture d'écran du jeu sur un grand panneau (simple image, sans interaction)
+                var bgCanvas = MakeCanvas("Fond (capture du jeu)", new Vector3(0f, 1.6f, 3.2f), 0.0025f, new Vector2(1920f, 1920f * 438f / 782f), cam);
                 var bgImage = new GameObject("Image", typeof(RectTransform)).AddComponent<Image>();
                 bgImage.transform.SetParent(bgCanvas.transform, false);
                 Stretch(bgImage.rectTransform);
@@ -145,42 +270,18 @@ namespace RageRoom.EditorTools
                 bgImage.preserveAspect = true;
                 bgImage.raycastTarget = false;
 
-                // Menu interactif devant le fond
-                var menuCanvas = MakeCanvas("Menu", new Vector3(0f, 1.3f, 1.8f), 0.0012f, new Vector2(560f, 620f), cam, true);
-                var menu = menuCanvas.gameObject.AddComponent<MainMenu>();
-
-                // Panneau principal
-                var main = MakePanel(menuCanvas.transform, "Principal");
-                var play = MakeButton(main, "JOUER", Red, 40, 96);
-                var settings = MakeButton(main, "PARAMÈTRES", Grey, 34, 84);
-                var quit = MakeButton(main, "QUITTER", Grey, 34, 84);
-
-                // Panneau paramètres
-                var opts = MakePanel(menuCanvas.transform, "Paramètres");
-                MakeText(opts, "PARAMÈTRES", 38, FontStyles.Bold, TextAlignmentOptions.Center, 56, Color.white);
-                var master = MakeSliderRow(opts, "Volume général", out var masterValue);
-                var fx = MakeSliderRow(opts, "Volume des effets", out var fxValue);
-                MakeText(opts, "Dans les mains", 24, FontStyles.Normal, TextAlignmentOptions.Left, 34, new Color(1f, 1f, 1f, 0.8f));
-                var choice = MakeRow(opts, "Choix manettes / mains", 64);
-                var controllers = MakeButton(choice, "Manettes", Red, 28, 64);
-                var hands = MakeButton(choice, "Mains", Grey, 28, 64);
-                var back = MakeButton(opts, "Retour", Grey, 28, 64);
-
-                var so = new SerializedObject(menu);
-                so.FindProperty("mainPanel").objectReferenceValue = main.gameObject;
-                so.FindProperty("settingsPanel").objectReferenceValue = opts.gameObject;
-                so.FindProperty("playButton").objectReferenceValue = play;
-                so.FindProperty("settingsButton").objectReferenceValue = settings;
-                so.FindProperty("quitButton").objectReferenceValue = quit;
-                so.FindProperty("masterSlider").objectReferenceValue = master;
-                so.FindProperty("masterValue").objectReferenceValue = masterValue;
-                so.FindProperty("fxSlider").objectReferenceValue = fx;
-                so.FindProperty("fxValue").objectReferenceValue = fxValue;
-                so.FindProperty("controllersButton").objectReferenceValue = controllers;
-                so.FindProperty("handsButton").objectReferenceValue = hands;
-                so.FindProperty("backButton").objectReferenceValue = back;
-                so.ApplyModifiedPropertiesWithoutUndo();
-                opts.gameObject.SetActive(false);
+                // Menu interactif devant le fond : un UI Document qui affiche MainMenu.uxml.
+                // Le pivot est le centre du panneau ; son collider est créé tout seul en Play.
+                var menu = new GameObject("Menu");
+                menu.transform.position = new Vector3(0f, 1.3f, 1.8f);
+                menu.transform.localScale = Vector3.one * MenuScale;
+                var document = menu.AddComponent<UIDocument>();
+                document.panelSettings = skin.panelSettings;
+                document.visualTreeAsset = skin.mainMenu;
+                document.worldSpaceSizeMode = UIDocument.WorldSpaceSizeMode.Fixed;
+                document.worldSpaceSize = MenuSize;
+                document.pivotReferenceSize = UnityEngine.UIElements.PivotReferenceSize.Layout; // pivot fixe, même si un bouton grossit au survol
+                menu.AddComponent<MainMenu>();
 
                 EditorSceneManager.SaveScene(scene, ScenePath);
             }
@@ -218,9 +319,10 @@ namespace RageRoom.EditorTools
             AssetDatabase.SaveAssets(); // écrit ProjectSettings/EditorBuildSettings.asset tout de suite
         }
 
-        // ---------- Helpers UI ----------
+        // ---------- Helpers ----------
 
-        static Canvas MakeCanvas(string name, Vector3 pos, float pixelSize, Vector2 size, Camera cam, bool interactive)
+        /// <summary>Canvas dans le monde, sans interaction (sert au fond).</summary>
+        static Canvas MakeCanvas(string name, Vector3 pos, float pixelSize, Vector2 size, Camera cam)
         {
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.position = pos;
@@ -228,122 +330,10 @@ namespace RageRoom.EditorTools
             canvas.renderMode = RenderMode.WorldSpace;
             canvas.worldCamera = cam;
             go.AddComponent<CanvasScaler>().dynamicPixelsPerUnit = 3f;
-            if (interactive) go.AddComponent<TrackedDeviceGraphicRaycaster>();
             var rt = (RectTransform)go.transform;
             rt.sizeDelta = size;
             rt.localScale = Vector3.one * pixelSize;
             return canvas;
-        }
-
-        static RectTransform MakePanel(Transform parent, string name)
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            var rt = (RectTransform)go.transform;
-            Stretch(rt);
-            var img = go.AddComponent<Image>();
-            img.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
-            img.type = Image.Type.Sliced;
-            img.color = PanelColor;
-            var layout = go.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(40, 40, 40, 40);
-            layout.spacing = 18f;
-            layout.childAlignment = TextAnchor.MiddleCenter;
-            layout.childControlWidth = layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
-            return rt;
-        }
-
-        static RectTransform MakeRow(Transform parent, string name, float height)
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            var h = go.AddComponent<HorizontalLayoutGroup>();
-            h.spacing = 14f;
-            h.childAlignment = TextAnchor.MiddleCenter;
-            h.childControlWidth = h.childControlHeight = true;
-            h.childForceExpandWidth = true;
-            h.childForceExpandHeight = true;
-            var le = go.AddComponent<LayoutElement>();
-            le.preferredHeight = le.minHeight = height;
-            return (RectTransform)go.transform;
-        }
-
-        static TMP_Text MakeText(Transform parent, string text, float size, FontStyles style, TextAlignmentOptions align, float height, Color color)
-        {
-            var go = new GameObject("Texte", typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            var t = go.AddComponent<TextMeshProUGUI>();
-            t.text = text;
-            t.fontSize = size;
-            t.fontStyle = style;
-            t.alignment = align;
-            t.color = color;
-            t.raycastTarget = false;
-            t.textWrappingMode = TextWrappingModes.NoWrap;
-            var le = go.AddComponent<LayoutElement>();
-            if (height > 0f) le.preferredHeight = le.minHeight = height;
-            return t;
-        }
-
-        static Button MakeButton(Transform parent, string label, Color color, float fontSize, float height)
-        {
-            var go = new GameObject("Bouton " + label, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            var img = go.AddComponent<Image>();
-            img.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
-            img.type = Image.Type.Sliced;
-            var b = go.AddComponent<Button>();
-            b.navigation = new Navigation { mode = Navigation.Mode.None };
-            var cb = b.colors;
-            cb.normalColor = color;
-            cb.selectedColor = color;
-            cb.highlightedColor = Color.Lerp(color, Color.white, 0.25f);
-            cb.pressedColor = Color.Lerp(color, Color.black, 0.3f);
-            cb.fadeDuration = 0.05f;
-            b.colors = cb;
-            var le = go.AddComponent<LayoutElement>();
-            le.preferredHeight = le.minHeight = height;
-            le.flexibleWidth = 1f;
-
-            var t = MakeText(go.transform, label, fontSize, FontStyles.Bold, TextAlignmentOptions.Center, 0f, Color.white);
-            Stretch((RectTransform)t.transform);
-            return b;
-        }
-
-        static Slider MakeSliderRow(Transform parent, string label, out TMP_Text value)
-        {
-            var header = MakeRow(parent, label, 34);
-            var name = MakeText(header, label, 24, FontStyles.Normal, TextAlignmentOptions.Left, 0f, new Color(1f, 1f, 1f, 0.8f));
-            name.GetComponent<LayoutElement>().flexibleWidth = 1f;
-            value = MakeText(header, "100 %", 24, FontStyles.Bold, TextAlignmentOptions.Right, 0f, Color.white);
-            value.GetComponent<LayoutElement>().preferredWidth = 100f;
-            header.GetComponent<HorizontalLayoutGroup>().childForceExpandWidth = false;
-
-            var res = new DefaultControls.Resources
-            {
-                standard = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd"),
-                background = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd"),
-                knob = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd"),
-            };
-            var go = DefaultControls.CreateSlider(res);
-            go.name = "Slider " + label;
-            go.transform.SetParent(parent, false);
-            var le = go.AddComponent<LayoutElement>();
-            le.preferredHeight = le.minHeight = 36f;
-            var slider = go.GetComponent<Slider>();
-            slider.minValue = 0f;
-            slider.maxValue = 1f;
-            slider.value = 1f;
-            slider.navigation = new Navigation { mode = Navigation.Mode.None };
-
-            // Couleurs : remplissage rouge, poignée blanche agrandie
-            var fill = go.transform.Find("Fill Area/Fill")?.GetComponent<Image>();
-            if (fill != null) fill.color = Red;
-            var handle = go.transform.Find("Handle Slide Area/Handle") as RectTransform;
-            if (handle != null) handle.sizeDelta = new Vector2(40f, 0f);
-            return slider;
         }
 
         static void Stretch(RectTransform rt)
