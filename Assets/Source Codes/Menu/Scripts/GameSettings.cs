@@ -54,6 +54,21 @@ namespace RageRoom
             }
         }
 
+        const string TurnSpeedKey = "Settings.TurnSpeed";
+        public const float MinTurnSpeed = 15f, MaxTurnSpeed = 120f, DefaultTurnSpeed = 45f;
+
+        /// <summary>Vitesse de la rotation au joystick (toujours fluide), en degrés par seconde.</summary>
+        public static float TurnSpeed
+        {
+            get => PlayerPrefs.GetFloat(TurnSpeedKey, DefaultTurnSpeed);
+            set
+            {
+                PlayerPrefs.SetFloat(TurnSpeedKey, Mathf.Clamp(value, MinTurnSpeed, MaxTurnSpeed));
+                SceneSetupRunner.ApplyTurnSettings();
+                Changed?.Invoke();
+            }
+        }
+
         /// <summary>Écrit les réglages sur le disque (à appeler en quittant l'écran des paramètres).</summary>
         public static void Save() => PlayerPrefs.Save();
 

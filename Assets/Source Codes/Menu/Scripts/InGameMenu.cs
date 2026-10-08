@@ -21,6 +21,8 @@ namespace RageRoom
         Slider master, fx;
         TMP_Text masterValue, fxValue;
         Button controllersButton, handsButton;
+        Slider turnSpeed;
+        TMP_Text turnSpeedValue;
         bool leaving;
 
         /// <summary>Ajoute le menu en jeu si la scène a un joueur VR et n'est pas le menu principal.</summary>
@@ -56,7 +58,7 @@ namespace RageRoom
 
         void Build()
         {
-            canvas = MenuUi.MakeCanvas("Menu en jeu", 0.0012f, new Vector2(560f, 660f));
+            canvas = MenuUi.MakeCanvas("Menu en jeu", 0.001f, new Vector2(560f, 780f));
             canvas.transform.SetParent(transform, false);
             var panel = MenuUi.MakePanel(canvas.transform, "Paramètres");
 
@@ -67,6 +69,11 @@ namespace RageRoom
             var choice = MenuUi.MakeRow(panel, "Choix manettes / mains", 60);
             controllersButton = MenuUi.MakeButton(choice, "Manettes", MenuUi.Red, 28, 60);
             handsButton = MenuUi.MakeButton(choice, "Mains", MenuUi.Grey, 28, 60);
+
+            turnSpeed = MenuUi.MakeSliderRow(panel, "Vitesse de rotation", out turnSpeedValue);
+            turnSpeed.minValue = GameSettings.MinTurnSpeed;
+            turnSpeed.maxValue = GameSettings.MaxTurnSpeed;
+            turnSpeed.wholeNumbers = true;
             var actions = MenuUi.MakeRow(panel, "Actions", 64);
             var resume = MenuUi.MakeButton(actions, "Reprendre", MenuUi.Red, 28, 64);
             var mainMenu = MenuUi.MakeButton(actions, "Menu principal", MenuUi.Grey, 26, 64);
@@ -75,6 +82,7 @@ namespace RageRoom
             fx.onValueChanged.AddListener(v => { GameSettings.FxVolume = v; RefreshLabels(); });
             controllersButton.onClick.AddListener(() => SetVisual(ControllerVisualMode.Manettes));
             handsButton.onClick.AddListener(() => SetVisual(ControllerVisualMode.Mains));
+            turnSpeed.onValueChanged.AddListener(v => { GameSettings.TurnSpeed = v; RefreshLabels(); });
             resume.onClick.AddListener(Close);
             mainMenu.onClick.AddListener(BackToMainMenu);
         }
@@ -95,6 +103,7 @@ namespace RageRoom
 
             master.SetValueWithoutNotify(GameSettings.MasterVolume);
             fx.SetValueWithoutNotify(GameSettings.FxVolume);
+            turnSpeed.SetValueWithoutNotify(GameSettings.TurnSpeed);
             RefreshLabels();
             RefreshVisualChoice();
             canvas.gameObject.SetActive(true);
@@ -124,6 +133,7 @@ namespace RageRoom
         {
             masterValue.text = Mathf.RoundToInt(master.value * 100f) + " %";
             fxValue.text = Mathf.RoundToInt(fx.value * 100f) + " %";
+            turnSpeedValue.text = Mathf.RoundToInt(turnSpeed.value) + " °/s";
         }
 
         void RefreshVisualChoice()
