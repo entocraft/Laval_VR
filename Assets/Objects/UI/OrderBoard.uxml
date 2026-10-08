@@ -1,0 +1,24 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Objects/UI/OrderBoardUSS.uss?fileID=7433441132597879392&amp;guid=a2a15c9f19cc82440a767a07a591ae6c&amp;type=3#OrderBoardUSS"/>
+    <ui:VisualElement name="Shop-root" class="shop-root" style="flex-grow: 1;">
+        <ui:VisualElement class="shop-header" style="flex-grow: 1;">
+            <ui:Label text="Babazon" name="Titre" class="shop-title"/>
+            <ui:Label text="0" name="Cart" class="cart-badge"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="Category-bar" class="category_bar" style="flex-grow: 1;"/>
+        <ui:VisualElement class="shop-body" style="flex-grow: 1;">
+            <ui:ScrollView name="product-grid" class="product-grid"/>
+            <ui:VisualElement class="cart-panel" style="flex-grow: 1;">
+                <ui:Label text="Votre panier" class="cart-title"/>
+                <ui:Label text="Votre panier est vide" name="Empty" class="cart-empty"/>
+                <ui:ScrollView name="cart-list" class="cart-list"/>
+                <ui:VisualElement class="cart-total-row" style="flex-grow: 1;">
+                    <ui:Label text="Total" name="Label" class="cart-total-label"/>
+                    <ui:Label text="0" class="cart-total-value"/>
+                </ui:VisualElement>
+                <ui:Button text="Commander" name="order-button" class="glass-button order-button"/>
+                <ui:Label text="" class="order-feedback"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
