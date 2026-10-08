@@ -1,0 +1,496 @@
+/* =====================================================
+   Style arcade façon Burnout Paradise :
+   noir + jaune + orange, formes en biais, bandes de chantier,
+   police condensée italique.
+
+   Fichiers à placer DANS LE MÊME DOSSIER que ce USS :
+     - BarlowCondensed-ExtraBoldItalic.ttf   la police
+     - slant.png        parallélogramme      /____/
+     - slant_right.png  bandeau              |____/
+     - cut.png          rectangle à coins coupés
+     - slashes.png      trois barres obliques ///
+     - hazard.png       bande de chantier jaune et noire
+
+   Les images blanches sont colorées ici par
+   -unity-background-image-tint-color. Les réglages
+   -unity-slice gardent les biais et les coins à taille
+   fixe : seul le milieu de l'image s'étire.
+   ===================================================== */
+
+/* ---------- Panneau et police ---------- */
+
+.shop-root {
+    width: 1920px;
+    height: 720px;
+    padding: 0;
+    background-color: rgba(10, 10, 10, 0.95);
+    border-width: 0;
+    border-left-width: 12px;
+    border-left-color: rgb(255, 204, 0);
+    border-radius: 0;
+    font-size: 26px;
+}
+
+/* La police est déjà italique : on ne demande ni gras ni italique en plus. */
+.shop-root,
+.shop-root .unity-text-element {
+    -unity-font: url("BarlowCondensed-ExtraBoldItalic.ttf");
+    -unity-font-definition: url("BarlowCondensed-ExtraBoldItalic.ttf");
+    -unity-font-style: normal;
+    letter-spacing: 1px;
+}
+
+.shop-root Label {
+    color: rgb(255, 255, 255);
+}
+
+/* ---------- En-tête : bandeau jaune en biais ---------- */
+
+.shop-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px 0 0;
+}
+
+.shop-root .shop-title {
+    margin: 0;
+    padding: 0 76px 0 24px;
+    font-size: 68px;
+    color: rgb(10, 10, 10);
+    letter-spacing: 4px;
+    background-image: url("slant_right.png");
+    -unity-background-image-tint-color: rgb(255, 204, 0);
+    -unity-slice-left: 2;
+    -unity-slice-right: 26;
+    -unity-slice-top: 0;
+    -unity-slice-bottom: 0;
+    -unity-slice-scale: 1.5px;
+}
+
+/* Barres obliques orange après le titre (ajoutées par le script) */
+.title-slashes {
+    width: 112px;
+    height: 56px;
+    margin-left: -18px;
+    margin-right: auto;
+    flex-shrink: 0;
+    background-image: url("slashes.png");
+    -unity-background-image-tint-color: rgb(255, 106, 0);
+}
+
+.shop-root .cart-badge {
+    margin: 0;
+    padding: 6px 44px;
+    color: rgb(10, 10, 10);
+    font-size: 34px;
+    background-image: url("slant.png");
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    -unity-slice-left: 26;
+    -unity-slice-right: 26;
+    -unity-slice-top: 0;
+    -unity-slice-bottom: 0;
+}
+
+/* ---------- Bandes de chantier (ajoutées par le script) ---------- */
+
+.hazard-band {
+    height: 16px;
+    flex-shrink: 0;
+    margin-top: 10px;
+    background-image: url("hazard.png");
+    background-repeat: repeat-x;
+    background-size: 32px 16px;
+}
+
+.hazard-band--bottom {
+    height: 10px;
+    margin-top: 0;
+    background-size: 20px 10px;
+}
+
+/* ---------- Catégories ---------- */
+
+.category-bar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px 16px 0 16px;
+}
+
+.shop-root .category-chip,
+.shop-root .category-chip:hover,
+.shop-root .category-chip:active,
+.shop-root .category-chip:focus {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.category-chip {
+    height: 46px;
+    margin: 0 4px 8px 0;
+    padding: 0 34px;
+    border-width: 0;
+    border-radius: 0;
+    color: rgb(255, 255, 255);
+    font-size: 26px;
+    transition-duration: 0.1s;
+    background-image: url("slant.png");
+    -unity-background-image-tint-color: rgb(46, 46, 46);
+    -unity-slice-left: 26;
+    -unity-slice-right: 26;
+    -unity-slice-top: 0;
+    -unity-slice-bottom: 0;
+}
+
+.category-chip:hover {
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    color: rgb(10, 10, 10);
+}
+
+.category-chip--active {
+    -unity-background-image-tint-color: rgb(255, 204, 0);
+    color: rgb(10, 10, 10);
+}
+
+/* ---------- Corps : grille + panier ---------- */
+
+.shop-body {
+    flex-direction: row;
+    flex-grow: 1;
+    padding: 14px 16px 16px 16px;
+}
+
+.product-grid {
+    flex-grow: 1;
+    margin-right: 12px;
+}
+
+.product-grid .unity-scroll-view__content-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 6px;
+}
+
+/* ---------- Carte produit : coins coupés ---------- */
+
+.product-card {
+    width: 244px;
+    margin: 6px;
+    padding: 8px 14px 16px 14px;
+    align-items: center;
+    background-image: url("cut.png");
+    -unity-background-image-tint-color: rgb(38, 38, 38);
+    -unity-slice-left: 34;
+    -unity-slice-right: 34;
+    -unity-slice-top: 34;
+    -unity-slice-bottom: 34;
+    -unity-slice-scale: 0.6px;
+    transition-duration: 0.12s;
+}
+
+/* Survol : la carte passe au jaune, grossit et penche légèrement */
+.product-card:hover {
+    -unity-background-image-tint-color: rgb(255, 204, 0);
+    scale: 1.04 1.04;
+    rotate: -1.5deg;
+}
+
+/* Numéro de l'article, comme une liste d'épreuves (ajouté par le script) */
+.shop-root .product-index {
+    align-self: flex-start;
+    margin: 0;
+    padding: 0;
+    font-size: 40px;
+    color: rgb(255, 204, 0);
+}
+
+.product-card:hover .product-index {
+    color: rgb(10, 10, 10);
+}
+
+.product-icon {
+    width: 130px;
+    height: 130px;
+    margin-bottom: 8px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.shop-root .product-name {
+    margin: 0 0 12px 0;
+    padding: 0;
+    font-size: 32px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.product-card:hover .product-name {
+    color: rgb(10, 10, 10);
+}
+
+/* ---------- Boutons en parallélogramme (la classe garde le nom glass-button) ---------- */
+
+/* Le fond rectangulaire du bouton doit rester transparent dans tous les états,
+   sinon il réapparaît derrière la forme en biais. */
+.shop-root .glass-button,
+.shop-root .glass-button:hover,
+.shop-root .glass-button:active,
+.shop-root .glass-button:focus,
+.shop-root .glass-button:disabled,
+.shop-root .qty-button,
+.shop-root .qty-button:hover,
+.shop-root .qty-button:active,
+.shop-root .qty-button:focus,
+.shop-root .qty-button:disabled {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.glass-button {
+    min-height: 52px;
+    margin: 0;
+    padding: 0 34px;
+    border-width: 0;
+    border-radius: 0;
+    color: rgb(10, 10, 10);
+    font-size: 30px;
+    transition-duration: 0.1s;
+    background-image: url("slant.png");
+    -unity-background-image-tint-color: rgb(255, 204, 0);
+    -unity-slice-left: 26;
+    -unity-slice-right: 26;
+    -unity-slice-top: 0;
+    -unity-slice-bottom: 0;
+}
+
+.glass-button:hover {
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    scale: 1.05 1.05;
+}
+
+.glass-button:active {
+    -unity-background-image-tint-color: rgb(255, 106, 0);
+    scale: 0.95 0.95;
+}
+
+.glass-button:disabled {
+    -unity-background-image-tint-color: rgb(50, 50, 50);
+    color: rgb(120, 120, 120);
+    scale: 1 1;
+}
+
+.add-button {
+    align-self: stretch;
+}
+
+/* Sur une carte survolée (jaune), le bouton s'inverse pour rester lisible */
+.product-card:hover .add-button {
+    -unity-background-image-tint-color: rgb(10, 10, 10);
+    color: rgb(255, 204, 0);
+}
+
+.product-card:hover .add-button:hover {
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    color: rgb(10, 10, 10);
+}
+
+.product-card:hover .add-button:active {
+    -unity-background-image-tint-color: rgb(255, 106, 0);
+    color: rgb(10, 10, 10);
+}
+
+.product-card:hover .add-button:disabled {
+    -unity-background-image-tint-color: rgb(50, 50, 50);
+    color: rgb(120, 120, 120);
+}
+
+/* ---------- Panier : coins coupés ---------- */
+
+.cart-panel {
+    width: 340px;
+    padding: 16px;
+    background-image: url("cut.png");
+    -unity-background-image-tint-color: rgb(26, 26, 26);
+    -unity-slice-left: 34;
+    -unity-slice-right: 34;
+    -unity-slice-top: 34;
+    -unity-slice-bottom: 34;
+}
+
+/* Titre du panier : bandeau jaune collé au bord gauche du panneau */
+.shop-root .cart-title {
+    align-self: flex-start;
+    margin: 0 0 12px -16px;
+    padding: 0 50px 0 16px;
+    font-size: 38px;
+    color: rgb(10, 10, 10);
+    letter-spacing: 2px;
+    background-image: url("slant_right.png");
+    -unity-background-image-tint-color: rgb(255, 204, 0);
+    -unity-slice-left: 2;
+    -unity-slice-right: 26;
+    -unity-slice-top: 0;
+    -unity-slice-bottom: 0;
+}
+
+.shop-root .cart-empty {
+    margin: 0 0 10px 0;
+    color: rgb(150, 150, 150);
+    white-space: normal;
+}
+
+.cart-list {
+    flex-grow: 1;
+}
+
+.cart-line {
+    margin-bottom: 10px;
+    padding: 0 0 10px 10px;
+    border-left-width: 4px;
+    border-left-color: rgb(255, 106, 0);
+    border-bottom-width: 2px;
+    border-bottom-color: rgb(50, 50, 50);
+}
+
+.shop-root .cart-line-name {
+    margin: 0;
+    padding: 0;
+    font-size: 28px;
+    white-space: normal;
+}
+
+.cart-line-controls {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+}
+
+.cart-line-qty {
+    flex-direction: row;
+    align-items: center;
+}
+
+/* Boutons + et - : même forme, avec un biais réduit de moitié */
+.qty-button {
+    width: 58px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    border-radius: 0;
+    color: rgb(10, 10, 10);
+    font-size: 34px;
+    transition-duration: 0.1s;
+    background-image: url("slant.png");
+    -unity-background-image-tint-color: rgb(255, 204, 0);
+    -unity-slice-left: 26;
+    -unity-slice-right: 26;
+    -unity-slice-top: 0;
+    -unity-slice-bottom: 0;
+    -unity-slice-scale: 0.5px;
+}
+
+.qty-button:hover {
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.qty-button:active {
+    -unity-background-image-tint-color: rgb(255, 106, 0);
+}
+
+.qty-button:disabled {
+    -unity-background-image-tint-color: rgb(50, 50, 50);
+    color: rgb(120, 120, 120);
+}
+
+.shop-root .qty-value {
+    min-width: 56px;
+    margin: 0;
+    padding: 0;
+    font-size: 40px;
+    color: rgb(255, 204, 0);
+    -unity-text-align: middle-center;
+}
+
+.cart-total-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 6px 0 10px 0;
+    padding-top: 6px;
+    border-top-width: 3px;
+    border-top-color: rgb(255, 204, 0);
+}
+
+.shop-root .cart-total-label {
+    font-size: 30px;
+}
+
+.shop-root .cart-total-value {
+    font-size: 52px;
+    color: rgb(255, 204, 0);
+}
+
+/* Bouton principal : orange, pour se détacher du jaune */
+.order-button {
+    min-height: 72px;
+    font-size: 44px;
+    letter-spacing: 3px;
+    -unity-background-image-tint-color: rgb(255, 106, 0);
+    -unity-slice-scale: 1.25px;
+}
+
+.order-button:hover {
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    scale: 1.03 1.03;
+}
+
+.order-button:active {
+    -unity-background-image-tint-color: rgb(255, 204, 0);
+}
+
+.order-button:disabled {
+    -unity-background-image-tint-color: rgb(50, 50, 50);
+    color: rgb(120, 120, 120);
+}
+
+.shop-root .order-feedback {
+    min-height: 32px;
+    margin: 8px 0 0 0;
+    padding: 0 0 0 30px;
+    color: rgb(255, 106, 0);
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+/* ---------- Barres de défilement aux couleurs du thème ---------- */
+
+.shop-root .unity-scroller__low-button,
+.shop-root .unity-scroller__high-button {
+    display: none;
+}
+
+.shop-root .unity-scroller--vertical .unity-scroller__slider {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.shop-root .unity-scroller .unity-base-slider__tracker {
+    background-color: rgb(30, 30, 30);
+    border-width: 0;
+}
+
+.shop-root .unity-scroller .unity-base-slider__dragger,
+.shop-root .unity-scroller .unity-base-slider__dragger:hover {
+    background-color: rgb(255, 204, 0);
+    border-width: 0;
+    border-radius: 0;
+}
+
+/* ---------- Optionnel : barre sous le panneau ---------- */
+
+.window-handle {
+    height: 8px;
+    align-self: stretch;
+    background-color: rgb(255, 204, 0);
+}
