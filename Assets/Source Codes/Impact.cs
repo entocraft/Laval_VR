@@ -17,7 +17,7 @@ using UnityEngine;
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody))]
-public class RuntimeImpactSound : MonoBehaviour
+public class RuntimeImpactSound : MonoBehaviour, IPointVelocity
 {
     public enum Preset
     {
@@ -109,8 +109,7 @@ public class RuntimeImpactSound : MonoBehaviour
 
     // Vitesse de l'autre objet : composants gardés en mémoire tant qu'on touche le même Rigidbody.
     Rigidbody otherRb;
-    RuntimeImpactSound otherSound;
-    RuntimeFracture otherFracture;
+    IPointVelocity otherTracker;
 
     // Poses des derniers pas physiques, pour mesurer la vitesse réelle même tenu en main (kinematic).
     readonly Matrix4x4[] poses = new Matrix4x4[4];
@@ -255,13 +254,10 @@ public class RuntimeImpactSound : MonoBehaviour
         if (body != otherRb)
         {
             otherRb = body;
-            otherSound = body.GetComponent<RuntimeImpactSound>();
-            otherFracture = otherSound == null ? body.GetComponent<RuntimeFracture>() : null;
+            otherTracker = body.GetComponent<IPointVelocity>();
         }
 
-        if (otherSound != null) return otherSound.PointVelocity(point);
-        if (otherFracture != null) return otherFracture.PointVelocity(point);
-        return body.GetPointVelocity(point);
+        return otherTracker != null ? otherTracker.PointVelocity(point) : body.GetPointVelocity(point);
     }
 
     bool Ignored(Collision col)

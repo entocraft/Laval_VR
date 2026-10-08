@@ -19,7 +19,7 @@ using UnityEngine.Rendering;
 ///    (bouteille, assiette, caisse, écran...).
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
-public class RuntimeFracture : MonoBehaviour
+public class RuntimeFracture : MonoBehaviour, IPointVelocity
 {
     public enum Preset
     {
@@ -138,6 +138,9 @@ public class RuntimeFracture : MonoBehaviour
 
     // Fragment comptabilisé dans le budget global.
     bool countedFragment;
+
+    // Vitesse du coup reçu par Hit() : les fragments partent en partie dans son sens.
+    Vector3 hitVelocity;
 
     /// <summary>Vrai dès que l'objet a cassé (il est supprimé à la fin de l'image).</summary>
     public bool IsBroken => broken;
@@ -334,9 +337,12 @@ public class RuntimeFracture : MonoBehaviour
 
         // Vitesse d'approche mesurée par suivi de position : la seule fiable quand l'objet est tenu en main.
         // On ne compte que le rapprochement, pour ne pas casser un objet qu'on soulève d'une table.
-        Vector3 otherVel = other != null ? other.PointVelocity(point)
-                         : col.rigidbody != null ? col.rigidbody.GetPointVelocity(point)
-                         : Vector3.zero;
+        Vector3 otherVel = Vector3.zero;
+        if (col.rigidbody != null)
+        {
+            IPointVelocity tracker = col.rigidbody.GetComponent<IPointVelocity>();
+            otherVel = tracker != null ? tracker.PointVelocity(point) : col.rigidbody.GetPointVelocity(point);
+        }
         float trackedSpeed = Mathf.Max(0f, -Vector3.Dot(PointVelocity(point) - otherVel, n));
 
         float physicsSpeed = col.relativeVelocity.magnitude;
@@ -350,6 +356,27 @@ public class RuntimeFracture : MonoBehaviour
         if (speed < breakVelocity) return;      // choc trop faible
         if (otherSolidity < solidity) return;   // l'autre est plus fragile : c'est lui qui casse
         Break(point);
+    }
+
+    /// <summary>
+    /// Coup porté par un autre script, par exemple une arme dont le bout a traversé l'objet entre deux pas physiques.
+    /// velocity : vitesse du point qui frappe (monde). Casse l'objet si elle suffit et si l'attaquant est au moins
+    /// aussi solide. Renvoie vrai si l'objet a cassé.
+    /// </summary>
+    public bool Hit(Vector3 worldPoint, Vector3 velocity, float attackerSolidity = Mathf.Infinity)
+    {
+        if (indestructible || !canBreak || broken || Time.time < armedAt) return false;
+
+        float speed = velocity.magnitude;
+        if (debugLog)
+            Debug.Log($"[RuntimeFracture] '{name}' frappé à {speed:F1} m/s (seuil {breakVelocity:F1}) "
+                    + $"— solidité {solidity} contre {attackerSolidity}", this);
+
+        if (speed < breakVelocity || attackerSolidity < solidity) return false;
+
+        hitVelocity = velocity;
+        Break(worldPoint);
+        return broken;
     }
 
     /// <summary>Clic droit sur le composant en mode Play : casse l'objet sans attendre de collision.</summary>
@@ -642,7 +669,7 @@ public class RuntimeFracture : MonoBehaviour
         Vector3 worldCenter = t.TransformPoint(d.bounds.center);
         Vector3 dir = (worldCenter - worldImpact).normalized;
         Vector3 baseVel = sourceRb.isKinematic ? PointVelocity(worldCenter) : GetVelocity(sourceRb);
-        SetVelocity(frb, baseVel + dir * scatterSpeed);
+        SetVelocity(frb, baseVel + hitVelocity * 0.5f + dir * scatterSpeed);
         frb.angularVelocity = sourceRb.angularVelocity + Random.insideUnitSphere * scatterSpeed;
 
         // Le fragment porte le même composant : suivi du budget, libération du mesh, recasse éventuelle.
@@ -985,7 +1012,7 @@ public class RuntimeFracture : MonoBehaviour
 
         var src = go.AddComponent<AudioSource>();
         src.clip = clip;
-        src.volume = Mathf.Clamp01(volume) * RageRoom.GameSettings.FxVolume; // réglage « Volume des effets » du menu
+        src.volume = Mathf.Clamp01(volume);
         src.pitch = 1f + Random.Range(-pitchRange, pitchRange);
         src.spatialBlend = 1f;   // son entièrement spatialisé
         src.minDistance = 0.5f;
