@@ -106,7 +106,8 @@ public class RuntimeFracture : MonoBehaviour
 
     [Header("Son")]
     [Tooltip("Nom du dossier dans Assets/Sounds/ (rempli par le preset, modifiable). "
-           + "Tous les clips SO_... de ce dossier sont chargés automatiquement dans la liste ci-dessous.")]
+           + "Les clips SO_[matériau]_n de ce dossier sont chargés automatiquement dans la liste ci-dessous "
+           + "(ceux nommés _Impact_ ou _Slide_ sont réservés au script RuntimeImpactSound).")]
     [Delayed] public string soundMaterial = "";
     [SerializeField, HideInInspector] string appliedSoundMaterial = "";
     [Tooltip("Sons de casse. S'il y en a plusieurs, un clip est tiré au hasard à chaque fois.")]
@@ -137,6 +138,14 @@ public class RuntimeFracture : MonoBehaviour
 
     // Fragment comptabilisé dans le budget global.
     bool countedFragment;
+
+    /// <summary>Vrai dès que l'objet a cassé (il est supprimé à la fin de l'image).</summary>
+    public bool IsBroken => broken;
+
+    // Sons de choc transmis aux plus gros fragments (si l'objet porte RuntimeImpactSound).
+    RuntimeImpactSound impactSoundSource;
+    int soundFragmentsLeft;
+    float soundShareThreshold;
 
     /// <summary>Mis à vrai par RuntimeCrush : le mesh de cet objet est déformé, donc propre à lui, et ne doit pas être mis en cache.</summary>
     [System.NonSerialized] public bool hasUniqueMesh;
@@ -372,6 +381,9 @@ public class RuntimeFracture : MonoBehaviour
         Rigidbody rb = GetComponent<Rigidbody>();
         float massPerMesh = rb.mass / Mathf.Max(1, filters.Length);
 
+        impactSoundSource = GetComponent<RuntimeImpactSound>();
+        soundFragmentsLeft = impactSoundSource != null ? impactSoundSource.fragmentSounds : 0;
+
         int done = 0;
         foreach (MeshFilter mf in filters)
             if (FractureMesh(mf, rb, massPerMesh, worldImpact)) done++;
@@ -432,6 +444,9 @@ public class RuntimeFracture : MonoBehaviour
         Material[] mats = BuildMaterials(mr.sharedMaterials, capSub);
         Vector3 scale = t.lossyScale;
         float lifeScale = Mathf.Lerp(1f, 0.5f, load); // scène chargée : les débris restent moins longtemps
+
+        // Seuls les fragments plus gros que la moitié de la taille moyenne peuvent hériter des sons de choc.
+        soundShareThreshold = 0.5f / Mathf.Max(1, result.fragments.Count);
 
         foreach (FragmentData d in result.fragments)
         {
@@ -661,6 +676,13 @@ public class RuntimeFracture : MonoBehaviour
         liveFragments++;
         fragmentQueue.Enqueue(f);
 
+        // Tintement des gros éclats qui retombent.
+        if (soundFragmentsLeft > 0 && d.volumeShare >= soundShareThreshold)
+        {
+            soundFragmentsLeft--;
+            impactSoundSource.CopyTo(go, 0.6f);
+        }
+
         if (debrisLifetime > 0f)
         {
             float life = debrisLifetime + Random.Range(-debrisLifetimeVariance, debrisLifetimeVariance);
@@ -848,12 +870,23 @@ public class RuntimeFracture : MonoBehaviour
     }
 
 #if UNITY_EDITOR
+    /// <summary>Catégories reconnues dans les noms de fichiers : SO_[matériau]_[catégorie]_n.</summary>
+    public static readonly string[] SoundCategories = { "Impact", "Slide" };
+
+    /// <summary>Sons de casse ou d'écrasement : les clips SO_[matériau]_n, sans catégorie dans le nom.</summary>
+    public static AudioClip[] FindMaterialSounds(string material, Object context)
+    {
+        return FindMaterialSounds(material, "", context);
+    }
+
     /// <summary>
-    /// Cherche dans Assets/Sounds/[matériau]/ les clips nommés SO_..., triés par numéro.
+    /// Cherche dans Assets/Sounds/[matériau]/ (sous-dossiers compris) les clips nommés SO_..., triés par numéro.
+    /// Avec une catégorie ("Impact", "Slide"), ne garde que les clips dont le nom contient _[catégorie].
+    /// Sans catégorie, ne garde que ceux qui n'en contiennent aucune.
     /// Le nom du dossier est comparé sans tenir compte des majuscules ni des accents.
     /// Éditeur uniquement : les clips trouvés sont enregistrés sur le composant, donc présents dans le build.
     /// </summary>
-    public static AudioClip[] FindMaterialSounds(string material, Object context)
+    public static AudioClip[] FindMaterialSounds(string material, string category, Object context)
     {
         const string root = "Assets/Sounds";
         if (string.IsNullOrWhiteSpace(material)) return null;
@@ -878,17 +911,21 @@ public class RuntimeFracture : MonoBehaviour
             return null;
         }
 
+        bool hasCategory = !string.IsNullOrEmpty(category);
+        string pattern = hasCategory ? $"SO_{material}_{category}_n" : $"SO_{material}_n";
+
         var clips = new List<AudioClip>();
         foreach (string guid in UnityEditor.AssetDatabase.FindAssets("t:AudioClip", new[] { folder }))
         {
             string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
             AudioClip clip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>(path);
-            if (clip != null && clip.name.StartsWith("SO_", System.StringComparison.OrdinalIgnoreCase))
-                clips.Add(clip);
+            if (clip != null && MatchesCategory(clip.name, category)) clips.Add(clip);
         }
         if (clips.Count == 0)
         {
-            Debug.LogWarning($"[Sons] Aucun clip 'SO_...' dans '{folder}'.", context);
+            // Une catégorie absente est un cas normal (pas de son de glissement pour ce matériau, par exemple).
+            if (hasCategory) Debug.Log($"[Sons] Aucun clip '{pattern}' dans '{folder}'.", context);
+            else Debug.LogWarning($"[Sons] Aucun clip '{pattern}' dans '{folder}'.", context);
             return null;
         }
 
@@ -897,8 +934,21 @@ public class RuntimeFracture : MonoBehaviour
             int c = TrailingNumber(a.name).CompareTo(TrailingNumber(b.name));
             return c != 0 ? c : string.CompareOrdinal(a.name, b.name);
         });
-        Debug.Log($"[Sons] {clips.Count} clip(s) chargé(s) depuis '{folder}'.", context);
+        Debug.Log($"[Sons] {clips.Count} clip(s) '{pattern}' chargé(s) depuis '{folder}'.", context);
         return clips.ToArray();
+    }
+
+    static bool MatchesCategory(string clipName, string category)
+    {
+        const System.StringComparison ignoreCase = System.StringComparison.OrdinalIgnoreCase;
+        if (!clipName.StartsWith("SO_", ignoreCase)) return false;
+
+        if (!string.IsNullOrEmpty(category))
+            return clipName.IndexOf("_" + category, ignoreCase) >= 0;
+
+        foreach (string c in SoundCategories)
+            if (clipName.IndexOf("_" + c, ignoreCase) >= 0) return false;
+        return true;
     }
 
     // Minuscules, sans accents, sans espaces ni ponctuation : "Céramique" et "ceramique" deviennent identiques.
@@ -935,7 +985,7 @@ public class RuntimeFracture : MonoBehaviour
 
         var src = go.AddComponent<AudioSource>();
         src.clip = clip;
-        src.volume = Mathf.Clamp01(volume);
+        src.volume = Mathf.Clamp01(volume) * RageRoom.GameSettings.FxVolume; // réglage « Volume des effets » du menu
         src.pitch = 1f + Random.Range(-pitchRange, pitchRange);
         src.spatialBlend = 1f;   // son entièrement spatialisé
         src.minDistance = 0.5f;

@@ -62,7 +62,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 8c48e20e65d41564daa3a20ab9337e6c, type: 3}
       propertyPath: m_Name
-      value: BOTTLE MID POLY (6)
+      value: Bottle
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -343,7 +343,7 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 80475175f6227dc48b9ee3f654d79da6, type: 3}
   - {fileID: 2800000, guid: b3b12fdbb6c353e4ca149a954dae20e7, type: 3}
   - {fileID: 2800000, guid: 27c01f6c79e826b4eb9208aa2f3029e9, type: 3}
-  decalPrefab: {fileID: 0}
+  decalPrefab: {fileID: 8257830367821958350, guid: 7c0605b8da31d094b92bd0c49b9f7b67, type: 3}
   opacity: 0.9
   sizeRange: {x: 0.3, y: 0.6}
   surfaceLayers:

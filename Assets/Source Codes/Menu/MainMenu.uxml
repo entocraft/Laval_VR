@@ -1,0 +1,27 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Template name="Settings" src="Settings.uxml" />
+    <Style src="Menu.uss" />
+
+    <!-- Remplace le canvas « Menu » (560 x 620) -->
+    <ui:VisualElement name="main-menu" class="menu menu--main">
+
+        <!-- Panneau principal -->
+        <ui:VisualElement name="main-panel" class="panel">
+            <ui:Button name="play-button" text="JOUER" class="btn btn--primary btn--large" />
+            <ui:Button name="settings-button" text="PARAMÈTRES" class="btn" />
+            <ui:Button name="quit-button" text="QUITTER" class="btn" />
+        </ui:VisualElement>
+
+        <!-- Panneau paramètres (masqué au départ par sa deuxième classe) -->
+        <ui:VisualElement name="settings-panel" class="panel panel--hidden">
+            <ui:Instance template="Settings" name="settings-block" />
+            <ui:VisualElement name="actions" class="actions">
+                <ui:Button name="back-button" text="RETOUR" class="btn" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Bande de chantier du bas (décor) -->
+        <ui:VisualElement class="hazard-band hazard-band--bottom" picking-mode="Ignore" />
+
+    </ui:VisualElement>
+</ui:UXML>

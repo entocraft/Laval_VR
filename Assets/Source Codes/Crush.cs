@@ -70,7 +70,8 @@ public class RuntimeCrush : MonoBehaviour
 
     [Header("Son")]
     [Tooltip("Nom du dossier dans Assets/Sounds/ (rempli par le preset, modifiable). "
-           + "Tous les clips SO_... de ce dossier sont chargés automatiquement dans la liste ci-dessous.")]
+           + "Les clips SO_[matériau]_n de ce dossier sont chargés automatiquement dans la liste ci-dessous "
+           + "(ceux nommés _Impact_ ou _Slide_ sont réservés au script RuntimeImpactSound).")]
     [Delayed] public string soundMaterial = "";
     [SerializeField, HideInInspector] string appliedSoundMaterial = "";
     [Tooltip("Sons d'écrasement. S'il y en a plusieurs, un clip est tiré au hasard à chaque fois.")]
@@ -102,6 +103,9 @@ public class RuntimeCrush : MonoBehaviour
     int poseHead;
     Rigidbody rb;
     bool recovering;
+
+    /// <summary>Image où le dernier son d'écrasement a été joué (lu par RuntimeImpactSound pour éviter un doublon).</summary>
+    [System.NonSerialized] public int lastCrushSoundFrame = -1;
     float recoverAt;
 
     // ------------------------------------------------------------------ Presets
@@ -347,6 +351,7 @@ public class RuntimeCrush : MonoBehaviour
         }
         float force = Mathf.Clamp01(depth / Mathf.Max(1e-6f, maxDent));
         PlayAt(crushSounds, worldPoint, soundVolume * Mathf.Lerp(0.4f, 1f, force), pitchVariation);
+        if (crushSounds != null && crushSounds.Length > 0) lastCrushSoundFrame = Time.frameCount;
         onCrush?.Invoke(worldPoint);
     }
 
@@ -427,7 +432,7 @@ public class RuntimeCrush : MonoBehaviour
 
         var src = go.AddComponent<AudioSource>();
         src.clip = clip;
-        src.volume = Mathf.Clamp01(volume);
+        src.volume = Mathf.Clamp01(volume) * RageRoom.GameSettings.FxVolume; // réglage « Volume des effets » du menu
         src.pitch = 1f + Random.Range(-pitchRange, pitchRange);
         src.spatialBlend = 1f;   // son entièrement spatialisé
         src.minDistance = 0.5f;

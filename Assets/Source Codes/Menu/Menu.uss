@@ -1,0 +1,357 @@
+/* =====================================================
+   Menus (principal + en jeu) dans la DA du shop :
+   noir + jaune + orange, formes en biais, bandes de chantier,
+   police condensée italique.
+
+   Ce fichier réutilise la police et les images du shop,
+   SANS les copier. Chemins attendus :
+     /Assets/Objects/UI/BarlowCondensed-ExtraBoldItalic.ttf
+     /Assets/Objects/UI/slant.png         parallélogramme  /____/
+     /Assets/Objects/UI/slant_right.png   bandeau          |____/
+     /Assets/Objects/UI/slashes.png       barres obliques  ///
+     /Assets/Objects/UI/hazard.png        bande de chantier
+   Si ton dossier est différent, remplace "/Assets/Objects/UI/"
+   partout dans ce fichier (Rechercher / Remplacer).
+
+   Les textes sont écrits en majuscules dans le UXML :
+   USS ne sait pas le faire.
+   ===================================================== */
+
+/* ---------- Panneau et police ---------- */
+
+.menu {
+    width: 560px;
+    padding: 0;
+    background-color: rgba(10, 10, 10, 0.95);
+    border-width: 0;
+    border-left-width: 12px;
+    border-left-color: rgb(255, 204, 0);
+    border-radius: 0;
+    font-size: 30px;
+    overflow: hidden;
+}
+
+/* Mêmes tailles que les anciens canvas */
+.menu--main {
+    height: 620px;
+}
+
+.menu--ingame {
+    height: 780px;
+}
+
+/* La police est déjà grasse et italique : on ne demande rien en plus. */
+.menu,
+.menu .unity-text-element {
+    -unity-font: url("/Assets/Objects/UI/BarlowCondensed-ExtraBoldItalic.ttf");
+    -unity-font-definition: url("/Assets/Objects/UI/BarlowCondensed-ExtraBoldItalic.ttf");
+    -unity-font-style: normal;
+    letter-spacing: 1px;
+}
+
+.menu .unity-label {
+    margin: 0;
+    padding: 0;
+    color: rgb(255, 255, 255);
+}
+
+.panel {
+    flex-grow: 1;
+    padding: 20px 28px 20px 24px;
+}
+
+/* Classe à poser / retirer par le script pour changer de panneau */
+.panel--hidden {
+    display: none;
+}
+
+/* Menu principal : les trois boutons au centre */
+#main-panel {
+    justify-content: center;
+}
+
+/* ---------- En-tête : bandeau jaune en biais + barres obliques ---------- */
+
+.panel__header {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: -24px;
+}
+
+.menu .panel__title {
+    padding: 0 62px 0 24px;
+    font-size: 60px;
+    color: rgb(10, 10, 10);
+    letter-spacing: 4px;
+    background-image: url("/Assets/Objects/UI/slant_right.png");
+    -unity-background-image-tint-color: rgb(255, 204, 0);
+    -unity-slice-left: 4;
+    -unity-slice-right: 28;
+    -unity-slice-top: 0;
+    -unity-slice-bottom: 0;
+    -unity-slice-scale: 1.25px;
+}
+
+.title-slashes {
+    width: 92px;
+    height: 46px;
+    margin-left: -16px;
+    flex-shrink: 0;
+    background-image: url("/Assets/Objects/UI/slashes.png");
+    -unity-background-image-tint-color: rgb(255, 106, 0);
+}
+
+/* ---------- Bandes de chantier ---------- */
+
+.hazard-band {
+    height: 14px;
+    flex-shrink: 0;
+    background-image: url("/Assets/Objects/UI/hazard.png");
+    background-repeat: repeat-x;
+    background-size: 28px 14px;
+}
+
+/* Sous le titre : la bande va d'un bord à l'autre du panneau */
+.settings .hazard-band {
+    margin: 10px -28px 0 -24px;
+}
+
+.hazard-band--bottom {
+    height: 10px;
+    background-size: 20px 10px;
+}
+
+/* ---------- Boutons en parallélogramme ---------- */
+
+/* Le thème par défaut de Unity recolore le fond et la bordure des boutons au survol,
+   au clic et au focus : un rectangle réapparaîtrait derrière la forme en biais.
+   On les neutralise dans tous les états. */
+.menu .panel .unity-button,
+.menu .panel .unity-button:hover,
+.menu .panel .unity-button:active,
+.menu .panel .unity-button:hover:active,
+.menu .panel .unity-button:focus,
+.menu .panel .unity-button:disabled {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 0;
+}
+
+.menu .btn {
+    min-height: 68px;
+    margin: 0;
+    padding: 0 34px;
+    color: rgb(10, 10, 10);
+    font-size: 36px;
+    letter-spacing: 2px;
+    transition-duration: 0.1s;
+    background-image: url("/Assets/Objects/UI/slant.png");
+    -unity-background-image-tint-color: rgb(255, 204, 0);
+    -unity-slice-left: 28;
+    -unity-slice-right: 28;
+    -unity-slice-top: 0;
+    -unity-slice-bottom: 0;
+}
+
+.menu .btn:hover {
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    scale: 1.04 1.04;
+}
+
+.menu .btn:active {
+    -unity-background-image-tint-color: rgb(255, 106, 0);
+    scale: 0.96 0.96;
+}
+
+/* Bouton principal : orange, pour se détacher du jaune (comme Commander) */
+.menu .btn--primary {
+    -unity-background-image-tint-color: rgb(255, 106, 0);
+}
+
+.menu .btn--primary:hover {
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.menu .btn--primary:active {
+    -unity-background-image-tint-color: rgb(255, 204, 0);
+}
+
+.menu .btn:disabled {
+    -unity-background-image-tint-color: rgb(50, 50, 50);
+    color: rgb(120, 120, 120);
+    scale: 1 1;
+}
+
+/* Boutons empilés du menu principal */
+#main-panel .btn {
+    min-height: 96px;
+    margin-bottom: 20px;
+    padding: 0 52px;
+    font-size: 54px;
+    letter-spacing: 3px;
+    -unity-slice-scale: 1.5px;
+}
+
+#main-panel .btn--large {
+    min-height: 130px;
+    padding: 0 68px;
+    font-size: 88px;
+    letter-spacing: 5px;
+    -unity-slice-scale: 2px;
+}
+
+/* ---------- Réglages ---------- */
+
+.setting {
+    margin-top: 22px;
+}
+
+.setting__header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.menu .setting__label {
+    font-size: 30px;
+}
+
+.menu .setting__value {
+    font-size: 38px;
+    color: rgb(255, 204, 0);
+}
+
+/* La vitesse de rotation n'existe que dans le menu en jeu.
+   Supprime cette règle pour l'afficher aussi dans le menu principal. */
+.menu--main .setting--turn-speed {
+    display: none;
+}
+
+/* ---------- Sliders ---------- */
+
+.menu .setting__slider {
+    height: 44px;
+    min-height: 44px;
+    margin: 4px 0 0 0;
+    padding: 0;
+}
+
+.menu .setting__slider .unity-base-slider__input {
+    margin: 0;
+    padding: 0;
+}
+
+.menu .setting__slider .unity-base-slider__tracker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 14px;
+    margin-top: -7px;
+    background-color: rgb(46, 46, 46);
+    border-width: 0;
+    border-radius: 0;
+}
+
+/* Partie remplie (il faut fill="true" sur le Slider dans le UXML) */
+.menu .setting__slider .unity-base-slider__fill {
+    position: absolute;
+    background-color: rgb(255, 204, 0);
+}
+
+.menu .setting__slider .unity-base-slider__dragger-border {
+    display: none;
+}
+
+/* Poignée : petit parallélogramme blanc, orange quand on la tient */
+.menu .setting__slider .unity-base-slider__dragger,
+.menu .setting__slider .unity-base-slider__dragger:hover,
+.menu .setting__slider .unity-base-slider__dragger:active,
+.menu .setting__slider:focus .unity-base-slider__dragger {
+    position: absolute;
+    top: 50%;
+    width: 44px;
+    height: 44px;
+    margin-top: -22px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 0;
+    background-image: url("/Assets/Objects/UI/slant.png");
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    -unity-slice-left: 28;
+    -unity-slice-right: 28;
+    -unity-slice-top: 0;
+    -unity-slice-bottom: 0;
+    -unity-slice-scale: 0.5px;
+}
+
+.menu .setting__slider .unity-base-slider__dragger:hover {
+    scale: 1.15 1.15;
+}
+
+.menu .setting__slider .unity-base-slider__dragger:active {
+    -unity-background-image-tint-color: rgb(255, 106, 0);
+    scale: 1.15 1.15;
+}
+
+/* ---------- Choix manettes / mains ---------- */
+
+.choice {
+    flex-direction: row;
+    margin-top: 6px;
+}
+
+.menu .choice__button {
+    flex-grow: 1;
+    flex-basis: 0;
+    height: 60px;
+    margin: 0;
+    padding: 0 30px;
+    color: rgb(255, 255, 255);
+    font-size: 34px;
+    letter-spacing: 2px;
+    transition-duration: 0.1s;
+    background-image: url("/Assets/Objects/UI/slant.png");
+    -unity-background-image-tint-color: rgb(46, 46, 46);
+    -unity-slice-left: 28;
+    -unity-slice-right: 28;
+    -unity-slice-top: 0;
+    -unity-slice-bottom: 0;
+}
+
+.menu .choice__button:hover {
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    color: rgb(10, 10, 10);
+}
+
+.menu .choice__button:active {
+    -unity-background-image-tint-color: rgb(255, 106, 0);
+    color: rgb(10, 10, 10);
+    scale: 0.96 0.96;
+}
+
+/* Option choisie : le script pose cette classe sur le bon bouton */
+.menu .choice__button--selected,
+.menu .choice__button--selected:hover {
+    -unity-background-image-tint-color: rgb(255, 204, 0);
+    color: rgb(10, 10, 10);
+}
+
+/* ---------- Boutons du bas ---------- */
+
+/* margin-top: auto colle la rangée en bas du panneau */
+.actions {
+    flex-direction: row;
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-top: 22px;
+}
+
+/* Un peu plus compacts pour que « REPRENDRE » et « MENU PRINCIPAL » tiennent côte à côte */
+.menu .actions .btn {
+    flex-grow: 1;
+    padding: 0 30px;
+    font-size: 32px;
+    letter-spacing: 1px;
+}

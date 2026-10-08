@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Template name="Settings" src="Settings.uxml" />
+    <Style src="Menu.uss" />
+
+    <!-- Remplace le canvas « Menu en jeu » (560 x 780) -->
+    <ui:VisualElement name="ingame-menu" class="menu menu--ingame">
+
+        <ui:VisualElement name="settings-panel" class="panel">
+            <ui:Instance template="Settings" name="settings-block" />
+            <ui:VisualElement name="actions" class="actions">
+                <ui:Button name="resume-button" text="REPRENDRE" class="btn btn--primary" />
+                <ui:Button name="main-menu-button" text="MENU PRINCIPAL" class="btn" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Bande de chantier du bas (décor) -->
+        <ui:VisualElement class="hazard-band hazard-band--bottom" picking-mode="Ignore" />
+
+    </ui:VisualElement>
+</ui:UXML>
