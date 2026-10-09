@@ -1,0 +1,38 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="ScoreHud.uss" />
+    <!--
+        HUD du score. Les noms (name) sont lus par ScoreHud.cs : ne pas les changer.
+        La classe « slant » transforme un élément en parallélogramme (dessiné par le script,
+        couleur et inclinaison réglées dans le USS avec slant-color et slant-size).
+        Les lignes du fil (points gagnés, bonus) sont ajoutées par le script dans score-feed.
+    -->
+    <ui:VisualElement name="score-root" class="score-root" picking-mode="Ignore">
+        <ui:VisualElement class="score-top" picking-mode="Ignore">
+            <ui:VisualElement class="score-box slant slant--right" picking-mode="Ignore">
+                <ui:VisualElement class="score-title slant slant--right" picking-mode="Ignore">
+                    <ui:Label text="SCORE" class="score-title-text" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:Label name="score-value" text="0" class="score-value" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <!-- Combo : le multiplicateur « X3 », la barre d'avancement vers le suivant, puis le chrono -->
+            <ui:VisualElement name="combo-box" class="combo-box" picking-mode="Ignore">
+                <ui:VisualElement name="combo-multiplier" class="combo-multiplier slant" picking-mode="Ignore">
+                    <ui:Label name="combo-multiplier-text" text="X2" class="combo-multiplier-text" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:VisualElement class="combo-info" picking-mode="Ignore">
+                    <ui:Label name="combo-count" text="COMBO 2" class="combo-count" picking-mode="Ignore" />
+                    <ui:VisualElement class="combo-progress-row" picking-mode="Ignore">
+                        <ui:VisualElement class="combo-progress slant" picking-mode="Ignore">
+                            <ui:VisualElement name="combo-progress-fill" class="combo-progress-fill slant" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <ui:Label name="combo-next" text="X3" class="combo-next" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="combo-timer slant" picking-mode="Ignore">
+                        <ui:VisualElement name="combo-timer-fill" class="combo-timer-fill slant" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="score-feed" class="score-feed" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

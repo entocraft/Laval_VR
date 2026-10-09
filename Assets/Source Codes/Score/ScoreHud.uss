@@ -1,0 +1,236 @@
+/* =====================================================
+   HUD du score, au style du shop : noir, jaune vif, orange,
+   formes en biais, texte gras italique.
+
+   Aucune image : les éléments de classe « slant » sont
+   dessinés par ScoreHud.cs, qui lit deux réglages ici :
+     --slant-color   couleur du parallélogramme
+     --slant-size    largeur du biais, en pixels (sans unité)
+   La police est donnée par le barème (champ Hud Font).
+   Panneau : 600 x 340 pixels, 1 pixel = 1 mm.
+
+   L'arrivée des lignes (chute, impact, rebond) est animée
+   par le script : pas de transition à régler ici.
+   ===================================================== */
+
+.score-root {
+    flex-grow: 1;
+    flex-direction: column;
+    font-size: 26px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: normal;
+}
+
+/* Sans la police du shop, on penche et on graisse la police par défaut. */
+.score-root--default-font {
+    -unity-font-style: bold-and-italic;
+}
+
+.score-root Label {
+    margin: 0;
+    padding: 0;
+}
+
+/* Éclair blanc à l'impact (classe posée un instant par le script) */
+.flash {
+    --slant-color: rgb(255, 255, 255);
+}
+
+/* ---------- Ligne du haut : score à gauche, combo à droite ---------- */
+
+.score-top {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+/* Plaque noire derrière le score */
+.score-box {
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 270px;
+    padding: 0 46px 4px 0;
+    --slant-color: rgba(10, 10, 10, 0.82);
+    --slant-size: 30;
+}
+
+/* Étiquette jaune « SCORE » */
+.score-title {
+    padding: 2px 34px 2px 16px;
+    --slant-color: rgb(255, 204, 0);
+    --slant-size: 16;
+}
+
+.score-root .score-title-text {
+    font-size: 26px;
+    letter-spacing: 3px;
+    color: rgb(10, 10, 10);
+}
+
+.score-root .score-value {
+    margin: -6px 0 0 16px;
+    font-size: 92px;
+    color: rgb(255, 255, 255);
+    transform-origin: left center;
+    transition-property: scale, color;
+    transition-duration: 0.12s;
+}
+
+.score-root .score-value.bump {
+    scale: 1.1 1.1;
+    color: rgb(255, 204, 0);
+}
+
+/* ---------- Combo : « X3 », barre d'avancement, chrono ---------- */
+
+.combo-box {
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 4px;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.25s;
+}
+
+.combo-box.combo--active {
+    opacity: 1;
+}
+
+/* Multiplicateur : gros parallélogramme orange */
+.combo-multiplier {
+    align-items: center;
+    justify-content: center;
+    min-width: 136px;
+    height: 104px;
+    padding: 0 24px;
+    --slant-color: rgb(255, 106, 0);
+    --slant-size: 28;
+}
+
+.combo-multiplier.flash {
+    --slant-color: rgb(255, 255, 255);
+}
+
+.score-root .combo-multiplier-text {
+    font-size: 84px;
+    color: rgb(10, 10, 10);
+}
+
+.combo-info {
+    margin-left: 2px;
+    align-items: flex-start;
+}
+
+.score-root .combo-count {
+    font-size: 30px;
+    color: rgb(255, 204, 0);
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.85);
+}
+
+/* Barre d'avancement vers le multiplicateur suivant, dont la valeur est écrite au bout */
+.combo-progress-row {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 2px;
+}
+
+.combo-progress {
+    width: 128px;
+    height: 24px;
+    --slant-color: rgba(10, 10, 10, 0.82);
+    --slant-size: 9;
+}
+
+.combo-progress-fill {
+    width: 0;
+    height: 100%;
+    --slant-color: rgb(255, 204, 0);
+    --slant-size: 9;
+}
+
+.score-root .combo-next {
+    margin-left: 4px;
+    font-size: 28px;
+    color: rgb(255, 255, 255);
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.85);
+}
+
+/* Chrono du combo : il se vide jusqu'à la prochaine casse */
+.combo-timer {
+    width: 128px;
+    height: 8px;
+    margin-top: 4px;
+    --slant-color: rgba(10, 10, 10, 0.82);
+    --slant-size: 3;
+}
+
+.combo-timer-fill {
+    width: 100%;
+    height: 100%;
+    --slant-color: rgb(255, 106, 0);
+    --slant-size: 3;
+}
+
+/* ---------- Fil des points gagnés ---------- */
+
+.score-feed {
+    margin-top: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.feed-line {
+    flex-direction: row;
+    align-items: center;
+    height: 40px;
+    margin-bottom: 4px;
+    padding: 0 32px 0 26px;
+    --slant-color: rgba(10, 10, 10, 0.82);
+    --slant-size: 14;
+}
+
+.score-root .feed-points {
+    min-width: 84px;
+    margin-right: 10px;
+    font-size: 30px;
+    color: rgb(255, 204, 0);
+}
+
+.score-root .feed-text {
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: rgb(255, 255, 255);
+}
+
+/* Bonus : bandeau orange, texte noir */
+.feed-line--bonus {
+    height: 46px;
+    --slant-color: rgb(255, 106, 0);
+}
+
+.score-root .feed-line--bonus .feed-points {
+    color: rgb(10, 10, 10);
+    font-size: 34px;
+}
+
+.score-root .feed-line--bonus .feed-text {
+    color: rgb(10, 10, 10);
+    font-size: 30px;
+}
+
+/* Fin de combo : bandeau jaune, texte noir */
+.feed-line--combo {
+    --slant-color: rgb(255, 204, 0);
+}
+
+.score-root .feed-line--combo .feed-text {
+    color: rgb(10, 10, 10);
+    font-size: 28px;
+}
+
+/* L'éclair doit passer devant les couleurs des bandeaux : il est redéclaré en dernier. */
+.feed-line.flash {
+    --slant-color: rgb(255, 255, 255);
+}

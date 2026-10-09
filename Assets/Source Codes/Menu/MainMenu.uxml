@@ -1,6 +1,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Template name="Settings" src="Settings.uxml" />
+    <ui:Template name="Radio" src="Radio.uxml" />
     <Style src="Menu.uss" />
+    <Style src="Radio.uss" />
 
     <!-- Remplace le canvas « Menu » (560 x 620) -->
     <ui:VisualElement name="main-menu" class="menu menu--main">
@@ -9,6 +11,7 @@
         <ui:VisualElement name="main-panel" class="panel">
             <ui:Button name="play-button" text="JOUER" class="btn btn--primary btn--large" />
             <ui:Button name="settings-button" text="PARAMÈTRES" class="btn" />
+            <ui:Button name="radio-button" text="RADIO" class="btn" />
             <ui:Button name="quit-button" text="QUITTER" class="btn" />
         </ui:VisualElement>
 
@@ -17,6 +20,14 @@
             <ui:Instance template="Settings" name="settings-block" />
             <ui:VisualElement name="actions" class="actions">
                 <ui:Button name="back-button" text="RETOUR" class="btn" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Panneau radio (masqué au départ lui aussi) -->
+        <ui:VisualElement name="radio-panel" class="panel panel--hidden">
+            <ui:Instance template="Radio" name="radio-block" />
+            <ui:VisualElement name="radio-actions" class="actions">
+                <ui:Button name="radio-back-button" text="RETOUR" class="btn" />
             </ui:VisualElement>
         </ui:VisualElement>
 

@@ -66,7 +66,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 842a398288ffab447b294c7b0499c3a6, type: 2}
     - target: {fileID: 919132149155446097, guid: 73f5f62db1118e741a974c98b02e7c2d, type: 3}
       propertyPath: m_Name
-      value: bricklowpoly (1)
+      value: Brick
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -84,6 +84,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 73f5f62db1118e741a974c98b02e7c2d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2753244755137639040}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 73f5f62db1118e741a974c98b02e7c2d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8618647697383341394}
   m_SourcePrefab: {fileID: 100100000, guid: 73f5f62db1118e741a974c98b02e7c2d, type: 3}
 --- !u!1 &2602792809068796067 stripped
 GameObject:
@@ -321,6 +324,21 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   debugLog: 0
+--- !u!114 &8618647697383341394
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2602792809068796067}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 711b389276b920d45ac74ad98a343d34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RageRoom.ScoreValue
+  objectId: Brick
+  pointsOverride: 0
+  labelOverride: 
 --- !u!4 &2820694668172456769 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1151388028547126963, guid: 73f5f62db1118e741a974c98b02e7c2d, type: 3}

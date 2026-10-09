@@ -1,0 +1,235 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f78772a05b56e943bf75214e68b285c, type: 3}
+  m_Name: ScoreTable
+  m_EditorClassIdentifier: Assembly-CSharp::RageRoom.ScoreTable
+  objects:
+  - id: Brick
+    label: Brick
+    points: 60
+  - id: can
+    label: Can
+    points: 320
+  - id: cup
+    label: Cup
+    points: 90
+  - id: Bottle
+    label: Bottle
+    points: 60
+  - id: neck
+    label: Neck
+    points: 390
+  - id: plate
+    label: Plate
+    points: 110
+  - id: Printer
+    label: Printer
+    points: 110
+  - id: TV
+    label: TV
+    points: 100
+  - id: Portal2_Radio_2_0 1
+    label: Portal 2 Radio 2 0 1
+    points: 100
+  - id: bricklowpoly
+    label: Bricklowpoly
+    points: 70
+  - id: wood box
+    label: Wood box
+    points: 150
+  - id: Cube.069
+    label: Cube.069
+    points: 200
+  - id: compressor_lp
+    label: Compressor lp
+    points: 200
+  materials:
+  - material: Glass
+    label: Verre
+    points: 100
+  - material: Ceramic
+    label: "C\xE9ramique"
+    points: 120
+  - material: Plastic
+    label: Plastique
+    points: 60
+  - material: Wood
+    label: Bois
+    points: 150
+  - material: Stone
+    label: Pierre
+    points: 250
+  - material: Metal
+    label: "M\xE9tal"
+    points: 80
+  - material: Cardboard
+    label: Carton
+    points: 30
+  - material: Foam
+    label: Mousse
+    points: 20
+  - material: Rubber
+    label: Caoutchouc
+    points: 40
+  defaultPoints: 50
+  rounding: 5
+  causes:
+  - cause: 1
+    label: Coup
+    multiplier: 1
+  - cause: 2
+    label: "Fracass\xE9"
+    multiplier: 1
+  - cause: 3
+    label: Lancer
+    multiplier: 1.25
+  - cause: 4
+    label: Projectile
+    multiplier: 1.5
+  - cause: 5
+    label: Tir
+    multiplier: 1
+  - cause: 6
+    label: Explosion
+    multiplier: 0.75
+  - cause: 7
+    label: Klaxon
+    multiplier: 1.25
+  - cause: 0
+    label: "Collat\xE9ral"
+    multiplier: 0.5
+  comboWindow: 3
+  multipliers:
+  - count: 1
+    multiplier: 1
+  - count: 3
+    multiplier: 2
+  - count: 6
+    multiplier: 3
+  - count: 10
+    multiplier: 4
+  - count: 15
+    multiplier: 5
+  - count: 25
+    multiplier: 6
+  explosionBonus:
+  - label: Boum
+    count: 3
+    points: 150
+  - label: Gros boum
+    count: 5
+    points: 300
+  - label: Carnage
+    count: 8
+    points: 600
+  - label: Apocalypse
+    count: 12
+    points: 1200
+  chainBonus:
+  - label: "R\xE9action en cha\xEEne"
+    count: 2
+    points: 250
+  - label: Effet domino
+    count: 3
+    points: 500
+  - label: Feu d'artifice
+    count: 5
+    points: 1000
+  chainWindow: 0.6
+  blastAftermath: 2
+  lineBonus:
+  - label: "Doubl\xE9"
+    count: 2
+    points: 200
+  - label: Brochette
+    count: 3
+    points: 500
+  - label: Alignement parfait
+    count: 4
+    points: 1000
+  lineWindow: 0.25
+  lineAngle: 4
+  streakBonus:
+  - label: Sans faute
+    count: 5
+    points: 250
+  - label: "Tireur d'\xE9lite"
+    count: 10
+    points: 750
+  shotTimeout: 0.4
+  longShotBonus:
+  - label: Tir de loin
+    meters: 4
+    points: 50
+  - label: Sniper
+    meters: 7
+    points: 150
+  sweepBonus:
+  - label: Coup double
+    count: 2
+    points: 100
+  - label: Balayage
+    count: 3
+    points: 250
+  - label: Tornade
+    count: 5
+    points: 600
+  sweepWindow: 0.35
+  reach: 0.35
+  strikeBonus:
+  - label: Double impact
+    count: 2
+    points: 200
+  - label: Strike
+    count: 3
+    points: 500
+  longThrowBonus:
+  - label: Beau lancer
+    meters: 3
+    points: 50
+  - label: "Lancer l\xE9gendaire"
+    meters: 6
+    points: 200
+  throwWindow: 4
+  minThrowDistance: 0.5
+  varietyBonus:
+  - label: "Touche-\xE0-tout"
+    count: 3
+    points: 300
+  - label: Arsenal complet
+    count: 5
+    points: 1000
+  showHud: 1
+  hudUxml: {fileID: 9197481963319205126, guid: c037e069a5506374f95a5c2c0ab788a1, type: 3}
+  hudPanelSettings: {fileID: 11400000, guid: c4673a378d3e9564bbba020c42d62196, type: 2}
+  hudFont: {fileID: 12800000, guid: ea2bc96584a44684abe07e42943b869c, type: 3}
+  hudDistance: 1.1
+  hudAngleUp: 18
+  hudAngleLeft: 14
+  hudScale: 0.7
+  hudDeadZone: 22
+  hudFollowSpeed: 5
+  hudLines: 4
+  hudLineLife: 2.5
+  hudSlamScale: 3
+  hudSlamTime: 0.14
+  hudPunch: 0.035
+  hudSounds: 1
+  hudVolume: 0.7
+  soundHit: {fileID: 0}
+  soundCombo: {fileID: 0}
+  soundBonus: {fileID: 0}
+  soundMultiplier: {fileID: 0}
+  soundComboEnd: {fileID: 0}
+  autoCreate: 1
+  excludedScenes:
+  - SC_Menu

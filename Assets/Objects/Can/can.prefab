@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 1560640149169150024}
   - component: {fileID: 2342344010062325989}
   - component: {fileID: 6120900652365688504}
+  - component: {fileID: 8065820894835376213}
   m_Layer: 0
   m_Name: can
   m_TagString: Untagged
@@ -290,19 +291,24 @@ MonoBehaviour:
   preset: 2
   appliedPreset: 2
   minVelocity: 1.5
+  impactStrength: 0.5
+  resistance: 30
+  heldForce: 250
+  hardening: 1
+  minThickness: 0.15
   ignoreLayers:
     serializedVersion: 2
     m_Bits: 0
-  dentRadius: 0.04
-  depthPerSpeed: 0.006
-  maxDent: 0.015
-  maxDeformation: 0.028
+  spread: 0.04
+  localization: 1.5
+  bulge: 0.2
   crumple: 0.25
   crumpleScale: 80
   elasticity: 0
   recoverySpeed: 0
   recoveryDelay: 0
-  updateMeshCollider: 0
+  colliderMode: 0
+  colliderRefreshRate: 60
   soundMaterial: Metal
   appliedSoundMaterial: Metal
   crushSounds:
@@ -347,3 +353,18 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   debugLog: 0
+--- !u!114 &8065820894835376213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7926717555715624840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 711b389276b920d45ac74ad98a343d34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RageRoom.ScoreValue
+  objectId: can
+  pointsOverride: 0
+  labelOverride: 

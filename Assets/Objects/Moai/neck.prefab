@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 8915150597028545640}
   - component: {fileID: 8160125867307097432}
   - component: {fileID: -7450265454547409193}
+  - component: {fileID: 3112521553161247772}
   m_Layer: 0
   m_Name: neck
   m_TagString: Untagged
@@ -325,3 +326,18 @@ MonoBehaviour:
   m_LimitAngularVelocity: 0
   m_MaxLinearVelocityDelta: 10
   m_MaxAngularVelocityDelta: 20
+--- !u!114 &3112521553161247772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105086795453810796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 711b389276b920d45ac74ad98a343d34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RageRoom.ScoreValue
+  objectId: neck
+  pointsOverride: 0
+  labelOverride: 

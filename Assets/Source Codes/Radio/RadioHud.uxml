@@ -1,0 +1,27 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="RadioHud.uss" />
+
+    <!-- Annonce « À l'écoute » du HUD (520 x 150 pixels). Remplie et animée par RadioHud.cs. -->
+    <ui:VisualElement name="radio-hud" class="np" picking-mode="Ignore">
+        <ui:VisualElement name="radio-hud-card" class="np__card" picking-mode="Ignore">
+
+            <!-- Pochette de l'album -->
+            <ui:VisualElement name="radio-hud-cover" class="np__cover" picking-mode="Ignore" />
+
+            <ui:VisualElement class="np__infos" picking-mode="Ignore">
+                <!-- Étiquette jaune en biais + nom de la radio -->
+                <ui:VisualElement class="np__top" picking-mode="Ignore">
+                    <ui:VisualElement class="np__tag slant slant--right" picking-mode="Ignore">
+                        <ui:Label text="À L'ÉCOUTE" class="np__tag-text" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:Label name="radio-hud-station" text="RADIO" class="np__station" picking-mode="Ignore" />
+                </ui:VisualElement>
+
+                <ui:Label name="radio-hud-title" text="TITRE DU MORCEAU" class="np__title" picking-mode="Ignore" />
+                <ui:Label name="radio-hud-artist" text="ARTISTE" class="np__artist" picking-mode="Ignore" />
+                <ui:Label name="radio-hud-album" text="ALBUM" class="np__album" picking-mode="Ignore" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

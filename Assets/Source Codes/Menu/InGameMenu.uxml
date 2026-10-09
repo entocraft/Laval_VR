@@ -1,15 +1,29 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Template name="Settings" src="Settings.uxml" />
+    <ui:Template name="Radio" src="Radio.uxml" />
     <Style src="Menu.uss" />
+    <Style src="Radio.uss" />
 
-    <!-- Remplace le canvas « Menu en jeu » (560 x 780) -->
+    <!-- Remplace le canvas « Menu en jeu » (560 x 820 depuis l'ajout du bouton RADIO) -->
     <ui:VisualElement name="ingame-menu" class="menu menu--ingame">
 
+        <!-- Panneau paramètres -->
         <ui:VisualElement name="settings-panel" class="panel">
             <ui:Instance template="Settings" name="settings-block" />
-            <ui:VisualElement name="actions" class="actions">
-                <ui:Button name="resume-button" text="REPRENDRE" class="btn btn--primary" />
-                <ui:Button name="main-menu-button" text="MENU PRINCIPAL" class="btn" />
+            <ui:VisualElement name="actions" class="actions actions--stacked">
+                <ui:Button name="radio-button" text="RADIO" class="btn" />
+                <ui:VisualElement class="actions__row">
+                    <ui:Button name="resume-button" text="REPRENDRE" class="btn btn--primary" />
+                    <ui:Button name="main-menu-button" text="MENU PRINCIPAL" class="btn" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Panneau radio (masqué au départ par sa deuxième classe) -->
+        <ui:VisualElement name="radio-panel" class="panel panel--hidden">
+            <ui:Instance template="Radio" name="radio-block" />
+            <ui:VisualElement name="radio-actions" class="actions">
+                <ui:Button name="radio-back-button" text="RETOUR" class="btn" />
             </ui:VisualElement>
         </ui:VisualElement>
 

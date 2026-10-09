@@ -24,6 +24,12 @@ public class WeaponGrab : MonoBehaviour, IPointVelocity
         [InspectorName("Physique (bute contre le décor)")] Physique
     }
 
+    public enum ReleasePhysics
+    {
+        [InspectorName("Tombe toujours (gravité activée)")] Tombe,
+        [InspectorName("Comme avant la saisie")] CommeAvant
+    }
+
     [Header("Prise")]
     [Tooltip("Point de prise sur le manche. L'arme est placée pour que ce point coïncide avec le Hold Point de la main. "
            + "Si vide, c'est l'origine de l'arme qui est utilisée.")]
@@ -51,6 +57,10 @@ public class WeaponGrab : MonoBehaviour, IPointVelocity
     public float sweepMinSpeed = 1.5f;
 
     [Header("Lâcher")]
+    [Tooltip("Tombe toujours : une fois lâchée, l'arme est soumise à la gravité, même si elle était figée (kinematic) "
+           + "ou sans gravité quand on l'a prise, par exemple posée sur un présentoir ou livrée figée. "
+           + "Comme avant la saisie : l'arme retrouve exactement les réglages de Rigidbody qu'elle avait avant d'être prise.")]
+    public ReleasePhysics releasePhysics = ReleasePhysics.Tombe;
     [Tooltip("Vitesse donnée à l'arme quand on la lâche, par rapport à celle de la main. 0 = elle tombe sur place.")]
     [Range(0f, 3f)] public float throwMultiplier = 1.2f;
 
@@ -67,6 +77,10 @@ public class WeaponGrab : MonoBehaviour, IPointVelocity
     [Header("Événements")]
     public UnityEvent onGrab;
     public UnityEvent onRelease;
+
+    [Header("Diagnostic")]
+    [Tooltip("Affiche dans la console l'état du Rigidbody à la saisie, au lâcher et un instant après.")]
+    public bool debugLog;
 
     /// <summary>Main qui tient l'arme, ou null.</summary>
     public WeaponHand Holder { get; private set; }
@@ -169,7 +183,15 @@ public class WeaponGrab : MonoBehaviour, IPointVelocity
     public void AttachTo(WeaponHand hand, bool instant = false)
     {
         if (hand == null || Holder == hand) return;
-        if (Holder != null) Holder.Release(false); // changement de main : pas de lancer
+        if (Holder != null)
+        {
+            WeaponHand previous = Holder;
+            previous.Release(false); // changement de main : pas de lancer
+
+            // L'autre main ne se savait plus porteuse de l'arme : on la détache ici, sinon l'état « tenue »
+            // du Rigidbody serait mémorisé comme son état normal et rendu au prochain lâcher.
+            if (Holder != null) Detach(Vector3.zero, Vector3.zero, previous.HoldPosition);
+        }
 
         // Annule un éventuel rétablissement des collisions en attente (arme reprise juste après un lâcher).
         if (restoreRoutine != null)
@@ -209,6 +231,8 @@ public class WeaponGrab : MonoBehaviour, IPointVelocity
         savedDetection = rb.collisionDetectionMode;
         savedMaxAngular = rb.maxAngularVelocity;
 
+        if (debugLog) Debug.Log($"[WeaponGrab] '{name}' saisie. Avant la saisie : {DescribeBody()}", this);
+
         if (holdMode == HoldMode.Rigide)
         {
             // Le mode de détection est changé avant de passer en kinematic (ContinuousDynamic n'y est pas permis).
@@ -237,11 +261,20 @@ public class WeaponGrab : MonoBehaviour, IPointVelocity
         if (Holder == null) return;
         Holder = null;
 
-        rb.isKinematic = savedKinematic;
+        bool fall = releasePhysics == ReleasePhysics.Tombe;
+        rb.isKinematic = !fall && savedKinematic;
         rb.collisionDetectionMode = savedDetection;
-        rb.useGravity = savedGravity;
+        rb.useGravity = fall || savedGravity;
         rb.interpolation = savedInterpolation;
         rb.maxAngularVelocity = savedMaxAngular;
+        if (fall)
+        {
+            // Une arme dont la position était bloquée (contraintes du Rigidbody) resterait en l'air.
+            rb.constraints &= ~RigidbodyConstraints.FreezePosition;
+            rb.WakeUp();
+        }
+
+        if (debugLog) Debug.Log($"[WeaponGrab] '{name}' lâchée. Après le lâcher : {DescribeBody()}", this);
 
         if (!rb.isKinematic)
         {
@@ -263,6 +296,45 @@ public class WeaponGrab : MonoBehaviour, IPointVelocity
         yield return new WaitForSeconds(0.3f);
         restoreRoutine = null;
         SetIgnored(false);
+
+        // L'arme devait tomber, mais quelque chose l'a de nouveau figée depuis le lâcher : on le signale et on corrige.
+        if (Holder == null && releasePhysics == ReleasePhysics.Tombe && Floating())
+        {
+            Debug.LogWarning($"[WeaponGrab] '{name}' a été lâchée mais ne tombe pas : un autre script ou composant a modifié "
+                           + $"son Rigidbody après le lâcher ({DescribeBody()}). Composants présents : {DescribeComponents()}", this);
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.constraints &= ~RigidbodyConstraints.FreezePosition;
+            rb.WakeUp();
+        }
+        else if (debugLog)
+        {
+            Debug.Log($"[WeaponGrab] '{name}', 0,3 s après le lâcher : {DescribeBody()}", this);
+        }
+    }
+
+    /// <summary>Vrai si le Rigidbody ne peut pas tomber : figé, sans gravité, ou position bloquée sur l'axe vertical.</summary>
+    bool Floating()
+    {
+        return rb.isKinematic || !rb.useGravity || (rb.constraints & RigidbodyConstraints.FreezePositionY) != 0;
+    }
+
+    string DescribeBody()
+    {
+        return $"Is Kinematic = {rb.isKinematic}, Use Gravity = {rb.useGravity}, Constraints = {rb.constraints}, "
+             + $"objet actif = {gameObject.activeInHierarchy}, parent = {(transform.parent != null ? transform.parent.name : "aucun")}";
+    }
+
+    string DescribeComponents()
+    {
+        var names = new System.Text.StringBuilder();
+        foreach (Component c in GetComponents<Component>())
+        {
+            if (c == null) continue;
+            if (names.Length > 0) names.Append(", ");
+            names.Append(c.GetType().Name);
+        }
+        return names.ToString();
     }
 
     void SetIgnored(bool ignore)

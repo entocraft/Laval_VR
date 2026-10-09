@@ -240,6 +240,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6b64e6433da82a345b8ece902d8e4733, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1040182720439254617}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6b64e6433da82a345b8ece902d8e4733, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5965315360712596097}
   m_SourcePrefab: {fileID: 100100000, guid: 6b64e6433da82a345b8ece902d8e4733, type: 3}
 --- !u!4 &7348179141998890536 stripped
 Transform:
@@ -482,3 +485,18 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   debugLog: 0
+--- !u!114 &5965315360712596097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7976483329882395794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 711b389276b920d45ac74ad98a343d34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RageRoom.ScoreValue
+  objectId: Portal2_Radio_2_0 1
+  pointsOverride: 0
+  labelOverride: 

@@ -12,7 +12,10 @@ namespace RageRoom
     /// Éléments cherchés dans le UXML, par leur nom puis, à défaut, par leur classe :
     ///  - obligatoires : ScrollView "product-grid", ScrollView "cart-list", Button "order-button" ;
     ///  - optionnels : Label "cart-badge", "cart-empty", "cart-total" (classe cart-total-value), "order-feedback",
-    ///    Button "clear-button" (vide la salle), VisualElement "category-bar" (masqué, le catalogue n'a pas de catégories).
+    ///    Button "clear-button" (vide la salle), VisualElement "category-bar" (onglets de catégories ; créé par le script s'il manque).
+    ///
+    /// Catégories : chaque article du catalogue est rangé d'après son champ « category » (texte ou enum).
+    /// Un onglet est créé par catégorie rencontrée, dans l'ordre du catalogue : rien d'autre à faire pour en ajouter une.
     ///
     /// Les décorations, les animations et les sons sont ajoutés par ce script : rien à créer dans UI Builder.
     /// </summary>
@@ -37,6 +40,13 @@ namespace RageRoom
                + "numéro sur chaque article. Leur apparence se règle dans le USS.")]
         [SerializeField] bool decorations = true;
 
+        [Header("Catégories")]
+        [Tooltip("Ajoute un premier onglet qui montre tous les articles, toutes catégories confondues.")]
+        [SerializeField] bool showAllCategory = true;
+        [SerializeField] string allCategoryLabel = "Tout";
+        [Tooltip("Nom de l'onglet des articles dont le champ category est vide.")]
+        [SerializeField] string uncategorizedLabel = "Autres";
+
         [Header("Animations")]
         [Tooltip("Apparition du panneau et des cartes, rebond des chiffres, bandeau de validation, bouton Commander qui bat.")]
         [SerializeField] bool animations = true;
@@ -59,7 +69,7 @@ namespace RageRoom
         [Tooltip("Vide : un petit son synthétique est généré au lancement.")]
         [SerializeField] AudioClip errorSound;
 
-        enum Sfx { Hover, Add, Remove, Order, Error }
+        enum Sfx { Hover, Add, Remove, Order, Error, Tab }
 
         class CartRow
         {
@@ -77,6 +87,12 @@ namespace RageRoom
         int limit;                   // maximum commandable en ce moment
         int shownTotal = -1;         // dernier total affiché, pour ne faire rebondir les chiffres que s'ils changent
         float feedbackHideTime, lastHoverTime;
+
+        // Catégories : celle de chaque article et la liste des onglets.
+        string[] entryCategory = new string[0];
+        readonly List<string> categoryNames = new List<string>();
+        readonly List<Button> categoryChips = new List<Button>();
+        VisualElement categoryBar;
 
         readonly List<Button> addButtons = new List<Button>();
         readonly List<VisualElement> cards = new List<VisualElement>();
@@ -122,9 +138,7 @@ namespace RageRoom
                 Debug.LogWarning("[OrderScreen] Label(s) introuvable(s) dans le UXML, ils ne seront pas mis à jour : "
                                + string.Join(", ", missing) + ". Donne ce nom à un Label (champ Name dans UI Builder).", this);
 
-            // Le catalogue n'a pas de catégories : la barre de filtres reste masquée.
-            var categoryBar = root.Q<VisualElement>("category-bar");
-            if (categoryBar != null) categoryBar.style.display = DisplayStyle.None;
+            categoryBar = Find<VisualElement>(root, "category-bar", "category-bar");
 
             if (spawner == null) spawner = FindFirstObjectByType<ObjectSpawner>();
             if (spawner == null)
@@ -161,6 +175,7 @@ namespace RageRoom
 
             shownTotal = -1;
             BuildProducts();
+            BuildCategories();
             UpdateLimit(true);
 
             // La place disponible change quand des objets sont livrés, cassés ou supprimés.
@@ -406,6 +421,9 @@ namespace RageRoom
                     Tone(samples, 784f, 784f, 0.07f, 0.45f, 0.5f);
                     Tone(samples, 1047f, 1047f, 0.40f, 0.5f, 0.5f);
                     break;
+                case Sfx.Tab:       // clac bref
+                    Tone(samples, 880f, 700f, 0.05f, 0.4f, 0.4f);
+                    break;
                 case Sfx.Error:     // deux buzz graves
                     Tone(samples, 150f, 135f, 0.12f, 0.5f, 1f);
                     Tone(samples, 0f, 0f, 0.04f, 0f, 0f);
@@ -435,6 +453,133 @@ namespace RageRoom
                 float attack = Mathf.Clamp01(i / (0.003f * Rate));
                 float decay = (1f - t) * (1f - t);
                 samples.Add(s * attack * decay * gain);
+            }
+        }
+
+        // ---------- Catégories ----------
+
+        static System.Reflection.MemberInfo categoryMember;
+        static bool categoryMemberSearched;
+
+        /// <summary>
+        /// Catégorie d'un article, lue dans son champ « category ». Le champ est lu par son nom plutôt qu'en dur,
+        /// pour accepter aussi bien un texte qu'un enum, et pour que ce script compile même si le champ est renommé.
+        /// Pour un enum, le nom affiché est celui donné par [InspectorName("...")] s'il y en a un.
+        /// </summary>
+        string CategoryOf(SpawnCatalog.Entry entry)
+        {
+            if (!categoryMemberSearched)
+            {
+                categoryMemberSearched = true;
+                const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public
+                                                           | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.IgnoreCase;
+                System.Type type = typeof(SpawnCatalog.Entry);
+                foreach (string candidate in new[] { "category", "categorie" })
+                {
+                    categoryMember = (System.Reflection.MemberInfo)type.GetField(candidate, flags) ?? type.GetProperty(candidate, flags);
+                    if (categoryMember != null) break;
+                }
+                if (categoryMember == null)
+                    Debug.LogWarning("[OrderScreen] Aucun champ « category » trouvé dans SpawnCatalog.Entry : les onglets de catégories ne sont pas affichés.", this);
+            }
+
+            object value = null;
+            if (categoryMember is System.Reflection.FieldInfo field) value = field.GetValue(entry);
+            else if (categoryMember is System.Reflection.PropertyInfo property) value = property.GetValue(entry, null);
+            if (value == null) return uncategorizedLabel;
+
+            string text = value.ToString();
+            if (value is System.Enum)
+            {
+                // Nom d'affichage de la valeur d'enum, si [InspectorName] en fournit un.
+                System.Reflection.FieldInfo enumField = value.GetType().GetField(text);
+                object[] names = enumField != null ? enumField.GetCustomAttributes(typeof(InspectorNameAttribute), false) : null;
+                if (names != null && names.Length > 0) text = ((InspectorNameAttribute)names[0]).displayName;
+            }
+
+            text = text != null ? text.Trim() : "";
+            return text.Length > 0 ? text : uncategorizedLabel;
+        }
+
+        /// <summary>Crée un onglet par catégorie rencontrée dans le catalogue. Avec une seule catégorie, la barre reste masquée.</summary>
+        void BuildCategories()
+        {
+            categoryNames.Clear();
+            categoryChips.Clear();
+
+            int count = catalog != null ? catalog.entries.Count : 0;
+            entryCategory = new string[count];
+            for (int i = 0; i < count; i++)
+            {
+                // « armes » et « Armes » vont dans le même onglet : la première écriture rencontrée sert de nom.
+                string category = CategoryOf(catalog.entries[i]);
+                string known = categoryNames.Find(n => string.Equals(n, category, System.StringComparison.OrdinalIgnoreCase));
+                if (known == null) categoryNames.Add(category);
+                entryCategory[i] = known ?? category;
+            }
+
+            bool useful = categoryMember != null && categoryNames.Count > 1;
+            if (!useful)
+            {
+                if (categoryBar != null) categoryBar.style.display = DisplayStyle.None;
+                return;
+            }
+
+            // Barre absente du UXML : on la crée juste au-dessus du bloc qui contient la grille.
+            if (categoryBar == null)
+            {
+                VisualElement body = productGrid.parent;
+                if (body == null || body.parent == null) return;
+                categoryBar = new VisualElement { name = "category-bar" };
+                categoryBar.AddToClassList("category-bar");
+                body.parent.Insert(body.parent.IndexOf(body), categoryBar);
+            }
+
+            categoryBar.Clear();
+            categoryBar.style.display = DisplayStyle.Flex;
+            if (showAllCategory) AddCategoryChip(allCategoryLabel, null);
+            foreach (string category in categoryNames) AddCategoryChip(category, category);
+
+            SelectCategory(showAllCategory ? null : categoryNames[0], false);
+        }
+
+        void AddCategoryChip(string label, string category)
+        {
+            var chip = Shape(new Button(() => SelectCategory(category, true)) { text = Txt(label) });
+            chip.AddToClassList("category-chip");
+            chip.userData = category;   // null pour l'onglet « Tout »
+            Hoverable(chip);
+            categoryBar.Add(chip);
+            categoryChips.Add(chip);
+        }
+
+        /// <summary>Ouvre un onglet : seuls les articles de cette catégorie restent visibles (null = tous). Le panier n'est pas touché.</summary>
+        void SelectCategory(string category, bool byUser)
+        {
+            foreach (Button chip in categoryChips)
+                chip.EnableInClassList("category-chip--active", (string)chip.userData == category);
+
+            int shown = 0;
+            for (int i = 0; i < cards.Count; i++)
+            {
+                bool visible = category == null || (i < entryCategory.Length && entryCategory[i] == category);
+                VisualElement card = cards[i];
+                card.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+                if (!visible) continue;
+
+                // Les articles de l'onglet arrivent l'un après l'autre.
+                if (byUser && animations)
+                {
+                    card.AddToClassList("product-card--enter");
+                    card.schedule.Execute(() => card.RemoveFromClassList("product-card--enter")).StartingIn(40 + shown * 50);
+                }
+                shown++;
+            }
+
+            if (byUser)
+            {
+                productGrid.scrollOffset = Vector2.zero;   // retour en haut de la liste
+                Play(Sfx.Tab);
             }
         }
 

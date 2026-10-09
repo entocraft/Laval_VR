@@ -1,0 +1,125 @@
+/* =====================================================
+   Annonce « À l'écoute » du HUD, dans la DA du shop :
+   noir + jaune + orange, étiquette en biais.
+
+   Panneau : 520 x 150 pixels, 1 pixel = 1 mm.
+   La police est donnée par les réglages de la radio
+   (champ Hud Font de l'asset RadioConfig).
+   Les formes en biais (classe « slant ») sont dessinées
+   par RadioHud.cs, de la couleur --slant-color.
+   ===================================================== */
+
+.np {
+    flex-grow: 1;
+    overflow: hidden;
+    font-size: 26px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: normal;
+}
+
+/* Sans la police du shop, on penche et on graisse la police par défaut. */
+.np--default-font {
+    -unity-font-style: bold-and-italic;
+}
+
+.np Label {
+    margin: 0;
+    padding: 0;
+    color: rgb(255, 255, 255);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ---------- Carte : attend hors champ à gauche, glisse à sa place ---------- */
+
+.np__card {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    padding: 14px 16px 14px 14px;
+    background-color: rgba(10, 10, 10, 0.86);
+    border-left-width: 8px;
+    border-left-color: rgb(255, 204, 0);
+    translate: -105% 0;
+    opacity: 0;
+    transition-property: translate, opacity;
+    transition-duration: 0.4s, 0.25s;
+    transition-timing-function: ease-in-cubic;
+}
+
+/* Classe posée par le script pendant l'annonce */
+.np--visible .np__card {
+    translate: 0 0;
+    opacity: 1;
+    transition-timing-function: ease-out-cubic;
+}
+
+/* ---------- Pochette ---------- */
+
+.np__cover {
+    width: 122px;
+    height: 122px;
+    flex-shrink: 0;
+    background-color: rgb(46, 46, 46);
+    background-size: cover;
+    border-width: 2px;
+    border-color: rgb(255, 255, 255);
+}
+
+/* Morceau sans pochette */
+.np__cover--empty {
+    border-color: rgb(90, 90, 90);
+}
+
+/* ---------- Textes ---------- */
+
+.np__infos {
+    flex-grow: 1;
+    flex-basis: 0;
+    margin-left: 16px;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.np__top {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.np__tag {
+    flex-shrink: 0;
+    padding: 0 22px 0 10px;
+    --slant-color: rgb(255, 204, 0);
+    --slant-size: 12;
+}
+
+.np .np__tag-text {
+    font-size: 18px;
+    color: rgb(10, 10, 10);
+    letter-spacing: 2px;
+}
+
+.np .np__station {
+    flex-shrink: 1;
+    margin-left: 10px;
+    font-size: 18px;
+    color: rgb(255, 106, 0);
+    letter-spacing: 1px;
+}
+
+.np .np__title {
+    font-size: 34px;
+    letter-spacing: 1px;
+}
+
+.np .np__artist {
+    font-size: 26px;
+    color: rgb(255, 204, 0);
+}
+
+.np .np__album {
+    font-size: 20px;
+    color: rgb(170, 170, 170);
+}

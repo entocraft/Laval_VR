@@ -1,0 +1,48 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <!-- Bloc radio partagé par MainMenu.uxml et InGameMenu.uxml.
+         Le style vient de Menu.uss et Radio.uss, chargés par ces deux fichiers.
+         Branché par RadioMenuBlock.cs. -->
+    <ui:VisualElement name="radio" class="settings radio">
+
+        <!-- En-tête : bandeau jaune + barres obliques + bande de chantier (décor) -->
+        <ui:VisualElement class="panel__header">
+            <ui:Label text="RADIO" class="panel__title" />
+            <ui:VisualElement class="title-slashes" picking-mode="Ignore" />
+        </ui:VisualElement>
+        <ui:VisualElement class="hazard-band" picking-mode="Ignore" />
+
+        <!-- Choix de la radio : < NOM > (après la dernière : « radio coupée ») -->
+        <ui:VisualElement name="radio-station" class="radio__station">
+            <ui:Button name="radio-station-prev" text="&lt;" class="choice__button radio__arrow" />
+            <ui:Label name="radio-station-name" text="RADIO COUPÉE" class="radio__station-name" />
+            <ui:Button name="radio-station-next" text="&gt;" class="choice__button radio__arrow" />
+        </ui:VisualElement>
+
+        <!-- Morceau en cours : pochette, titre, artiste, album -->
+        <ui:VisualElement name="radio-now" class="radio__now">
+            <ui:VisualElement name="radio-cover" class="radio__cover" />
+            <ui:VisualElement class="radio__infos">
+                <ui:Label text="À L'ÉCOUTE" class="radio__tag" />
+                <ui:Label name="radio-title" text="AUCUN MORCEAU" class="radio__title" />
+                <ui:Label name="radio-artist" class="radio__artist" />
+                <ui:Label name="radio-album" class="radio__album" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Morceau précédent / suivant -->
+        <ui:VisualElement name="radio-tracks" class="choice radio__tracks">
+            <ui:Button name="radio-track-prev" text="PRÉCÉDENT" class="choice__button" />
+            <ui:Button name="radio-track-next" text="SUIVANT" class="choice__button" />
+        </ui:VisualElement>
+
+        <!-- Volume de la musique -->
+        <ui:VisualElement name="radio-volume-setting" class="setting">
+            <ui:VisualElement class="setting__header">
+                <ui:Label text="VOLUME DE LA MUSIQUE" class="setting__label" />
+                <ui:Label name="radio-volume-value" text="50 %" class="setting__value" />
+            </ui:VisualElement>
+            <ui:Slider name="radio-volume-slider" low-value="0" high-value="1" value="0.5" fill="true" class="setting__slider" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

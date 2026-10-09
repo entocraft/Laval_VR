@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a04b61427630ae3498384a76b2cb48a8, type: 3}
+  m_Name: Radio 1
+  m_EditorClassIdentifier: Assembly-CSharp::RageRoom.RadioStation
+  stationName: Rockz
+  order: 0
+  shuffle: 1
+  defaultCover: {fileID: 0}
+  tracks:
+  - clip: {fileID: 8300000, guid: 615c3e0bc9fb3674db51bd248d2984fb, type: 3}
+    title: Burn The World Waltz
+    artist: Kevin MacLeod
+    album: Rock Harder
+    cover: {fileID: 0}
+    volume: 1
+  - clip: {fileID: 8300000, guid: 861d1e6c51d6a9c47a9bc7b1f86aaf35, type: 3}
+    title: Metalmania
+    artist: Kevin MacLeod
+    album: Rock Harder
+    cover: {fileID: 0}
+    volume: 1
+  - clip: {fileID: 8300000, guid: 30bc9eb4e4c79934c90179c421fdc026, type: 3}
+    title: Ready Aim Fire
+    artist: Kevin MacLeod
+    album: Rock Harder
+    cover: {fileID: 0}
+    volume: 1
+  - clip: {fileID: 8300000, guid: 80bd3c2f32695a84db18575bcd4ce50b, type: 3}
+    title: What You Want
+    artist: Kevin MacLeod
+    album: Rock Harder
+    cover: {fileID: 0}
+    volume: 1
+  - clip: {fileID: 8300000, guid: 8384272747058ea418015301fdf69c9a, type: 3}
+    title: Club Diver
+    artist: Kevin MacLeod
+    album: Electronica
+    cover: {fileID: 0}
+    volume: 1
+  - clip: {fileID: 8300000, guid: 3c911edbdd281834fa1f5474f9f006e5, type: 3}
+    title: Ropocalypse 2
+    artist: Kevin MacLeod
+    album: Electronica
+    cover: {fileID: 0}
+    volume: 1

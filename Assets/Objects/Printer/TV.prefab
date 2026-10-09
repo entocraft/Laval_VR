@@ -54,7 +54,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 571a2c23e361811409329cc4c9b1be59, type: 2}
     - target: {fileID: 919132149155446097, guid: 7216c459b8921e24c8fb2bc07506fdd6, type: 3}
       propertyPath: m_Name
-      value: Retro TV (2)
+      value: TV
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -72,6 +72,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7216c459b8921e24c8fb2bc07506fdd6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 733157682927808920}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7216c459b8921e24c8fb2bc07506fdd6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3367252595162062556}
   m_SourcePrefab: {fileID: 100100000, guid: 7216c459b8921e24c8fb2bc07506fdd6, type: 3}
 --- !u!1 &2845610228662565674 stripped
 GameObject:
@@ -309,3 +312,18 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   debugLog: 0
+--- !u!114 &3367252595162062556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2845610228662565674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 711b389276b920d45ac74ad98a343d34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RageRoom.ScoreValue
+  objectId: TV
+  pointsOverride: 0
+  labelOverride: 

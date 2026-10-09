@@ -4,7 +4,8 @@ using UnityEngine.UIElements;
 namespace RageRoom
 {
     /// <summary>
-    /// Menu principal (MainMenu.uxml) : Jouer (charge la scène du jeu), Paramètres (volumes, manettes / mains), Quitter.
+    /// Menu principal (MainMenu.uxml) : Jouer (charge la scène du jeu), Paramètres (volumes, manettes / mains),
+    /// Radio (choix de la radio, morceau, volume de la musique), Quitter.
     /// À placer sur le même objet que le UI Document du menu ; la scène est créée par
     /// « Rage Room > Menu > Recréer la scène du menu ».
     /// </summary>
@@ -14,8 +15,8 @@ namespace RageRoom
         [Tooltip("Nom de la scène du jeu (doit être dans les Build Settings).")]
         [SerializeField] string gameScene = "SampleScene";
 
-        VisualElement mainPanel, settingsPanel;
-        Button playButton, settingsButton, quitButton;
+        VisualElement mainPanel, settingsPanel, radioPanel;
+        Button playButton, settingsButton, radioButton, quitButton;
         bool loading;
 
         // Le UI Document reconstruit ses éléments à chaque activation : on rebranche tout ici.
@@ -50,20 +51,26 @@ namespace RageRoom
 
             mainPanel = MenuUi.Find<VisualElement>(root, "main-panel");
             settingsPanel = MenuUi.Find<VisualElement>(root, "settings-panel");
+            radioPanel = MenuUi.Find<VisualElement>(root, "radio-panel");
             playButton = MenuUi.Find<Button>(root, "play-button");
             settingsButton = MenuUi.Find<Button>(root, "settings-button");
+            radioButton = MenuUi.Find<Button>(root, "radio-button");
             quitButton = MenuUi.Find<Button>(root, "quit-button");
 
             MenuUi.OnClick(playButton, Play);
-            MenuUi.OnClick(settingsButton, OpenSettings);
+            MenuUi.OnClick(settingsButton, () => Show(settingsPanel));
+            MenuUi.OnClick(radioButton, () => Show(radioPanel));
             MenuUi.OnClick(quitButton, Quit);
             MenuUi.OnClick(MenuUi.Find<Button>(root, "back-button"), CloseSettings);
+            MenuUi.OnClick(MenuUi.Find<Button>(root, "radio-back-button"), () => Show(mainPanel));
 
             // Volumes, manettes / mains : branchés et remis aux valeurs enregistrées
             new MenuUi.SettingsBlock(root);
+            // Radio : branchée sur le lecteur, se met à jour toute seule quand le morceau change
+            new RadioMenuBlock(root);
 
             loading = false;
-            ShowSettings(false);
+            Show(mainPanel);
         }
 
         void Play()
@@ -74,23 +81,24 @@ namespace RageRoom
 
             // Chargement en arrière-plan : le casque continue d'afficher le menu au lieu de figer l'image
             if (playButton != null) playButton.text = "CHARGEMENT...";
-            foreach (var button in new[] { playButton, settingsButton, quitButton })
+            foreach (var button in new[] { playButton, settingsButton, radioButton, quitButton })
                 if (button != null) button.SetEnabled(false);
             SceneSetupRunner.LoadScene(gameScene);
         }
 
-        void OpenSettings() => ShowSettings(true);
-
         void CloseSettings()
         {
             GameSettings.Save();
-            ShowSettings(false);
+            Show(mainPanel);
         }
 
-        void ShowSettings(bool settings)
+        /// <summary>Affiche un seul des trois panneaux (principal, paramètres, radio).</summary>
+        void Show(VisualElement panel)
         {
-            MenuUi.Show(mainPanel, !settings);
-            MenuUi.Show(settingsPanel, settings);
+            if (panel == null) panel = mainPanel;
+            MenuUi.Show(mainPanel, panel == mainPanel);
+            MenuUi.Show(settingsPanel, panel == settingsPanel);
+            MenuUi.Show(radioPanel, panel == radioPanel);
         }
 
         void Quit()

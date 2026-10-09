@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c2ff31d56532494aa96d27f30231a42, type: 3}
+  m_Name: RadioConfig
+  m_EditorClassIdentifier: Assembly-CSharp::RageRoom.RadioConfig
+  playOnStart: 1
+  defaultVolume: 0.5
+  uppercase: 1
+  showHud: 1
+  hudUxml: {fileID: 9197481963319205126, guid: b59465e82cdf33349b24e129c873d22a, type: 3}
+  hudPanelSettings: {fileID: 11400000, guid: c3f87d505dfe87348954ab2350b5629a, type: 2}
+  hudFont: {fileID: 12800000, guid: ea2bc96584a44684abe07e42943b869c, type: 3}
+  hudDuration: 6
+  hudUnderScore: 1
+  hudGap: 14
+  hudDistance: 1.1
+  hudAngleUp: 12
+  hudAngleLeft: 14
+  hudScale: 0.7
+  hudDeadZone: 22
+  hudFollowSpeed: 5

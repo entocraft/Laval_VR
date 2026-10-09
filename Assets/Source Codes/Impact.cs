@@ -454,12 +454,15 @@ public class RuntimeImpactSound : MonoBehaviour, IPointVelocity
     /// <summary>
     /// Donne les sons de choc de cet objet à un fragment (appelé par RuntimeFracture à la casse).
     /// Version allégée : plus aigu, moins fort, sans glissement.
+    /// Si le fragment porte déjà ce composant (fragment recyclé), il est simplement réglé de nouveau.
+    /// Renvoie le composant du fragment, ou null si cet objet n'a aucun son de choc.
     /// </summary>
-    public void CopyTo(GameObject fragment, float volumeScale)
+    public RuntimeImpactSound CopyTo(GameObject fragment, float volumeScale)
     {
-        if (impactSounds == null || impactSounds.Length == 0) return;
+        if (impactSounds == null || impactSounds.Length == 0) return null;
 
-        var s = fragment.AddComponent<RuntimeImpactSound>();
+        if (!fragment.TryGetComponent(out RuntimeImpactSound s)) s = fragment.AddComponent<RuntimeImpactSound>();
+        s.hasPending = false;
         s.impactSounds = impactSounds;
         s.impactVolume = impactVolume * volumeScale;
         s.minImpactSpeed = minImpactSpeed;
@@ -471,5 +474,6 @@ public class RuntimeImpactSound : MonoBehaviour, IPointVelocity
         s.slideSounds = null;
         s.fragmentSounds = 0;
         s.armedAt = Time.time + 0.2f; // pas de tintement au moment où les éclats se séparent
+        return s;
     }
 }
