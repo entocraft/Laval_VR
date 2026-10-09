@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc322ec4aff641c44b43f80398c6483c, type: 3}
+  m_Name: SpawnCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::RageRoom.SpawnCatalog
+  entries:
+  - displayName: Bouteille en verre
+    icon: {fileID: 0}
+    variants: []
+    mass: 0.5
+    maxPerOrder: 20
+  - displayName: Caisse en bois
+    icon: {fileID: 0}
+    variants: []
+    mass: 4
+    maxPerOrder: 10
+  - displayName: Brique
+    icon: {fileID: 0}
+    variants: []
+    mass: 2.5
+    maxPerOrder: 20
+  - displayName: "T\xE9l\xE9"
+    icon: {fileID: 0}
+    variants: []
+    mass: 12
+    maxPerOrder: 5
+  - displayName: Imprimante
+    icon: {fileID: 0}
+    variants: []
+    mass: 8
+    maxPerOrder: 5
+  - displayName: Miroir
+    icon: {fileID: 0}
+    variants: []
+    mass: 10
+    maxPerOrder: 3
+  - displayName: Vase
+    icon: {fileID: 0}
+    variants: []
+    mass: 1.5
+    maxPerOrder: 10
+  - displayName: Cadre photo
+    icon: {fileID: 0}
+    variants: []
+    mass: 1
+    maxPerOrder: 10
+  - displayName: Statue
+    icon: {fileID: 0}
+    variants: []
+    mass: 30
+    maxPerOrder: 2
+  - displayName: Vaisselle
+    icon: {fileID: 0}
+    variants: []
+    mass: 0.4
+    maxPerOrder: 20
+  - displayName: Tonneau
+    icon: {fileID: 0}
+    variants: []
+    mass: 15
+    maxPerOrder: 5

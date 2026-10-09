@@ -15,6 +15,7 @@ namespace RageRoom
         public class Entry
         {
             public string displayName = "Objet";
+            public string Category = "Catégorie";
             public Sprite icon;
             [Tooltip("Prefabs possibles pour cet objet. Un est tiré au hasard à chaque spawn.")]
             public GameObject[] variants = Array.Empty<GameObject>();
@@ -42,17 +43,7 @@ namespace RageRoom
         {
             entries = new List<Entry>
             {
-                new Entry { displayName = "Bouteille en verre", mass = 0.5f, maxPerOrder = 20 },
-                new Entry { displayName = "Caisse en bois",     mass = 4f,   maxPerOrder = 10 },
-                new Entry { displayName = "Brique",             mass = 2.5f, maxPerOrder = 20 },
-                new Entry { displayName = "Télé",               mass = 12f,  maxPerOrder = 5 },
-                new Entry { displayName = "Imprimante",         mass = 8f,   maxPerOrder = 5 },
-                new Entry { displayName = "Miroir",             mass = 10f,  maxPerOrder = 3 },
-                new Entry { displayName = "Vase",               mass = 1.5f, maxPerOrder = 10 },
-                new Entry { displayName = "Cadre photo",        mass = 1f,   maxPerOrder = 10 },
-                new Entry { displayName = "Statue",             mass = 30f,  maxPerOrder = 2 },
-                new Entry { displayName = "Vaisselle",          mass = 0.4f, maxPerOrder = 20 },
-                new Entry { displayName = "Tonneau",            mass = 15f,  maxPerOrder = 5 },
+                
             };
 #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(this);

@@ -331,7 +331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb940c289ba3a37429056497b0089096, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dynamite
-  ignition: 2
+  ignition: 0
   fuseTime: 4
   fuseTip: {fileID: 5347483225554191693}
   fuseBase: {fileID: 5837663083339498021}

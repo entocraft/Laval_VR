@@ -14,49 +14,64 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RageRoom.SpawnCatalog
   entries:
   - displayName: Bouteille en Verre
+    Category: Objets
     icon: {fileID: 21300000, guid: 4e421d5ea57098a4885dd37291a8590c, type: 3}
     variants:
     - {fileID: 4289737717904178469, guid: 757f40c26cc541048b88a115f2acf220, type: 3}
     mass: 1
     maxPerOrder: 25
   - displayName: Brique
+    Category: Objets
     icon: {fileID: 21300000, guid: 7f7b2b1bed523f441932ab1558c47f09, type: 3}
     variants:
     - {fileID: 2602792809068796067, guid: 0cb0428354e0f5d47bbec18a90d52397, type: 3}
     mass: 4
     maxPerOrder: 20
   - displayName: TV
+    Category: Objets
     icon: {fileID: 21300000, guid: f8da0f1dc67c5444e8a4273eb14ee666, type: 3}
     variants:
     - {fileID: 2845610228662565674, guid: 7a960386bda10e34d84db4a69acf60e9, type: 3}
     mass: 8
     maxPerOrder: 5
   - displayName: Imprimante
+    Category: Objets
     icon: {fileID: 21300000, guid: 7f72818f9ae32f54da63eb5d1959b0c2, type: 3}
     variants:
     - {fileID: 3314669382264066720, guid: 36cfa1443f685e74790cc2c35d8fe618, type: 3}
     mass: 6
     maxPerOrder: 5
   - displayName: Assiette
+    Category: Objets
     icon: {fileID: 21300000, guid: d74355d46aa4bd74f829f7777c254ab0, type: 3}
     variants:
     - {fileID: 1910822629051859512, guid: c1d612c8a48841545bc962e2864dda20, type: 3}
     mass: 1
     maxPerOrder: 15
   - displayName: "Moa\xEF"
+    Category: Objets
     icon: {fileID: 21300000, guid: 9ded2643e7c22db4cb6f8c46f2c3020b, type: 3}
     variants:
     - {fileID: 2770006704351698169, guid: c5008fbfc4bc2be47874a0af8eb950d5, type: 3}
     mass: 1
     maxPerOrder: 15
   - displayName: Canette
+    Category: Objets
     icon: {fileID: 21300000, guid: ee5dbf43926edc444834713ab20ac2e7, type: 3}
     variants:
     - {fileID: 2770006704351698169, guid: c5008fbfc4bc2be47874a0af8eb950d5, type: 3}
     mass: 0.5
     maxPerOrder: 25
   - displayName: Bouteille en plastique
+    Category: Objets
     icon: {fileID: 21300000, guid: 8bba67e7f59ff7341afbc4eef7ef3c5c, type: 3}
     variants: []
+    mass: 0.5
+    maxPerOrder: 15
+  - displayName: Dynamite
+    Category: Armes
+    icon: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
+    variants:
+    - {fileID: 3824509291050833006, guid: 5263a6044fa8b9f448670763da1dd243, type: 3}
     mass: 0.5
     maxPerOrder: 15
